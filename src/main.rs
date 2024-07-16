@@ -44,10 +44,16 @@ async fn main() {
     let mut usable_height = screen_height() - (7.0 * border);
     let mut width = usable_width / 3.0;
     let mut height = usable_height / 7.0;
+    let mut row_3:f32 = (border_h * 2.0) + (2.0 * height);
     let mut row_4:f32 = (border_h * 3.0) + (3.0 * height);
     let mut row_5:f32 = (border_h * 4.0) + (4.0 * height);
     let mut row_6:f32 = (border_h * 5.0) + (5.0 * height);
     let mut row_7:f32 = (border_h * 6.0) + (6.0 * height);
+    let mut buttons3 = vec![
+        Buttons::dim("+"),
+        Buttons::dim("-"),
+        Buttons::dim("*"),
+    ];
     let mut buttons4 = vec![
         Buttons::dim("1"),
         Buttons::dim("2"),
@@ -76,10 +82,19 @@ async fn main() {
         usable_height = screen_height() - (7.0 * border_h);
         width = usable_width / 3.0;
         height = usable_height / 7.0;
+        row_3 = (border_h * 2.0) + (2.0 * height);
         row_4 = (border_h * 3.0) + (3.0 * height);
         row_5 = (border_h * 4.0) + (4.0 * height);
         row_6 = (border_h * 5.0) + (5.0 * height);
         row_7 = (border_h * 6.0) + (6.0 * height);
+        for (i, button) in buttons3.iter_mut().enumerate() {
+            let x = border + (i as f32) * (width + border);
+            button.update(x, row_3, width, height);
+            button.draw();
+            if button.clicked() {
+                println!("Button {} clicked!", button.text);
+            }
+        }
         for (i, button) in buttons4.iter_mut().enumerate() {
             let x = border + (i as f32) * (width + border);
             button.update(x, row_4, width, height);
