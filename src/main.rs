@@ -6,12 +6,14 @@ mod operations;
 struct Buttons {
     rect: Rect,
     text: String,
+    value: f64,
 }
 impl Buttons {
-    fn dim(text: &str)-> Self {
+    fn dim(text: &str, value: f64)-> Self {
         Buttons {
             rect: Rect::new(0.0, 0.0, 0.0, 0.0),
             text: text.to_string(),
+            value,
         }
 
     }
@@ -49,30 +51,32 @@ async fn main() {
     let mut row_5:f32 = (border_h * 4.0) + (4.0 * height);
     let mut row_6:f32 = (border_h * 5.0) + (5.0 * height);
     let mut row_7:f32 = (border_h * 6.0) + (6.0 * height);
+    let mut input_buffer = vec![];
+    let mut clr:bool = false;
     let mut buttons3 = vec![
-        Buttons::dim("+"),
-        Buttons::dim("-"),
-        Buttons::dim("*"),
+        Buttons::dim("+", 10.0),
+        Buttons::dim("-", 11.0),
+        Buttons::dim("*", 12.0),
     ];
     let mut buttons4 = vec![
-        Buttons::dim("1"),
-        Buttons::dim("2"),
-        Buttons::dim("3"),
+        Buttons::dim("1", 1.0),
+        Buttons::dim("2", 2.0),
+        Buttons::dim("3", 3.0),
     ];
     let mut buttons5 = vec![
-        Buttons::dim("4"),
-        Buttons::dim("5"),
-        Buttons::dim("6"),
+        Buttons::dim("4", 4.0),
+        Buttons::dim("5", 5.0),
+        Buttons::dim("6", 6.0),
     ];
     let mut buttons6 = vec![
-        Buttons::dim("7"),
-        Buttons::dim("8"),
-        Buttons::dim("9"),
+        Buttons::dim("7", 7.0),
+        Buttons::dim("8", 8.0),
+        Buttons::dim("9", 9.0),
     ];
     let mut buttons7 = vec![
-        Buttons::dim("0"),
-        Buttons::dim("clr"),
-        Buttons::dim("="),
+        Buttons::dim("0", 0.0),
+        Buttons::dim("clr", 13.0),
+        Buttons::dim("=", 14.0),
     ];
     loop {
         clear_background(WHITE);
@@ -93,6 +97,7 @@ async fn main() {
             button.draw();
             if button.clicked() {
                 println!("Button {} clicked!", button.text);
+                input_buffer.push(button.value);
             }
         }
         for (i, button) in buttons4.iter_mut().enumerate() {
@@ -101,6 +106,7 @@ async fn main() {
             button.draw();
             if button.clicked() {
                 println!("Button {} clicked!", button.text);
+                input_buffer.push(button.value);
             }
         }
         for (i, button) in buttons5.iter_mut().enumerate() {
@@ -109,6 +115,7 @@ async fn main() {
             button.draw();
             if button.clicked() {
                 println!("Button {} clicked!", button.text);
+                input_buffer.push(button.value);
             }
         }
         for (i, button) in buttons6.iter_mut().enumerate() {
@@ -117,6 +124,7 @@ async fn main() {
             button.draw();
             if button.clicked() {
                 println!("Button {} clicked!", button.text);
+                input_buffer.push(button.value);
             }
         }
         for (i, button) in buttons7.iter_mut().enumerate() {
@@ -125,7 +133,15 @@ async fn main() {
             button.draw();
             if button.clicked() {
                 println!("Button {} clicked!", button.text);
+                if button.value == 13.0 {
+                    clr = true;
+                }
             }
+        }
+        if clr == true {
+            input_buffer.clear();
+            println!("Input Buffer Cleared");
+            clr = false;
         }
         if is_quit_requested() {
             break;

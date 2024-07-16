@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
-async fn add(vec: &Vec<i64>)->i64 {
-    let mut sum: i64 = 0;
+async fn operate(vec: &Vec<f64>, value: f64)->f64 {
+    let mut sum: f64 = 0.0;
     for num in vec {
         sum += num;
     }
