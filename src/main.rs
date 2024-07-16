@@ -22,7 +22,11 @@ impl Buttons {
 
     fn draw(&self) {
         draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, GRAY);
-        draw_text(&self.text, self.rect.x + 30.0, self.rect.y + 40.0, 30.0, BLACK);
+        let font_size = self.rect.h * 0.5;
+        let text_dimensions = measure_text(&self.text, None, font_size as u16, 1.0);
+        let text_x = self.rect.x + (self.rect.w - text_dimensions.width) * 0.5;
+        let text_y = self.rect.y + (self.rect.h + text_dimensions.height) * 0.5;
+        draw_text(&self.text, text_x, text_y, font_size, BLACK);
     }
 
     fn clicked(&self) -> bool {
@@ -40,31 +44,73 @@ async fn main() {
     let mut usable_height = screen_height() - (7.0 * border);
     let mut width = usable_width / 3.0;
     let mut height = usable_height / 7.0;
-    let mut col_1:f32 = border;
-    let mut col_2:f32 = (border * 2.0) + width;
-    let mut col_3:f32 = (border * 3.0) + (width * 2.0);
     let mut row_4:f32 = (border_h * 3.0) + (3.0 * height);
+    let mut row_5:f32 = (border_h * 4.0) + (4.0 * height);
+    let mut row_6:f32 = (border_h * 5.0) + (5.0 * height);
+    let mut row_7:f32 = (border_h * 6.0) + (6.0 * height);
     let mut buttons4 = vec![
         Buttons::dim("1"),
         Buttons::dim("2"),
         Buttons::dim("3"),
+    ];
+    let mut buttons5 = vec![
+        Buttons::dim("4"),
+        Buttons::dim("5"),
+        Buttons::dim("6"),
+    ];
+    let mut buttons6 = vec![
+        Buttons::dim("7"),
+        Buttons::dim("8"),
+        Buttons::dim("9"),
+    ];
+    let mut buttons7 = vec![
+        Buttons::dim("0"),
+        Buttons::dim("clr"),
+        Buttons::dim("="),
     ];
     loop {
         clear_background(WHITE);
         border = (screen_width() / 100.0) * 2.0;
         border_h = (screen_height() / 100.0) * 2.0;
         usable_width = screen_width() - (4.0 * border);
-        usable_height = screen_height() - (7.0 * border);
+        usable_height = screen_height() - (7.0 * border_h);
         width = usable_width / 3.0;
         height = usable_height / 7.0;
-        col_1 = border;
-        col_2 = (border * 2.0) + width;
-        col_3 = (border * 3.0) + (width * 2.0);
         row_4 = (border_h * 3.0) + (3.0 * height);
+        row_5 = (border_h * 4.0) + (4.0 * height);
+        row_6 = (border_h * 5.0) + (5.0 * height);
+        row_7 = (border_h * 6.0) + (6.0 * height);
         for (i, button) in buttons4.iter_mut().enumerate() {
             let x = border + (i as f32) * (width + border);
             button.update(x, row_4, width, height);
             button.draw();
+            if button.clicked() {
+                println!("Button {} clicked!", button.text);
+            }
+        }
+        for (i, button) in buttons5.iter_mut().enumerate() {
+            let x = border + (i as f32) * (width + border);
+            button.update(x, row_5, width, height);
+            button.draw();
+            if button.clicked() {
+                println!("Button {} clicked!", button.text);
+            }
+        }
+        for (i, button) in buttons6.iter_mut().enumerate() {
+            let x = border + (i as f32) * (width + border);
+            button.update(x, row_6, width, height);
+            button.draw();
+            if button.clicked() {
+                println!("Button {} clicked!", button.text);
+            }
+        }
+        for (i, button) in buttons7.iter_mut().enumerate() {
+            let x = border + (i as f32) * (width + border);
+            button.update(x, row_7, width, height);
+            button.draw();
+            if button.clicked() {
+                println!("Button {} clicked!", button.text);
+            }
         }
         if is_quit_requested() {
             break;
