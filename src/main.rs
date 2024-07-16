@@ -1,5 +1,6 @@
 use macroquad::miniquad::window::set_window_size;
 use macroquad::prelude::*;
+use crate::operations::operate;
 
 mod operations;
 
@@ -53,6 +54,7 @@ async fn main() {
     let mut row_7:f32 = (border_h * 6.0) + (6.0 * height);
     let mut input_buffer = vec![];
     let mut clr:bool = false;
+    let mut output:f64;
     let mut buttons3 = vec![
         Buttons::dim("+", 10.0),
         Buttons::dim("-", 11.0),
@@ -133,8 +135,15 @@ async fn main() {
             button.draw();
             if button.clicked() {
                 println!("Button {} clicked!", button.text);
+                if button.value == 0.0 {
+                    input_buffer.push(button.value);
+                }
                 if button.value == 13.0 {
                     clr = true;
+                }
+                if button.value== 14.0 {
+                    output = operations::operate(&input_buffer).await;
+                    println!("{}", output);
                 }
             }
         }
