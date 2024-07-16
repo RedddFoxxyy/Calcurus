@@ -144,6 +144,8 @@ async fn main() {
                 if button.value== 14.0 {
                     output = operations::operate(&input_buffer).await;
                     println!("{}", output);
+                    input_buffer.clear();
+                    input_buffer.push(output);
                 }
             }
         }
