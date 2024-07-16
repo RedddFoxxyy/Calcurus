@@ -50,3 +50,11 @@ pub(crate) async fn operate(vec: &Vec<f64>) ->f64 {
     input
 }
 
+pub(crate) async fn concatenate_strings(vector: &Vec<String>) -> String {
+    let mut result = String::new();
+    for s in vector {
+        result += &s;
+    }
+    result
+}
+

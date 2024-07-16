@@ -1,8 +1,36 @@
 use macroquad::miniquad::window::set_window_size;
 use macroquad::prelude::*;
-use crate::operations::operate;
+use crate::operations::{concatenate_strings, operate};
 
 mod operations;
+
+struct ScreenRect {
+    rect: Rect,
+    text:String,
+}
+impl ScreenRect {
+    fn dim(text: &str)-> Self {
+        ScreenRect {
+            rect: Rect::new(0.0, 0.0, 0.0, 0.0),
+            text: text.to_string(),
+        }
+
+    }
+
+    fn update(&mut self, x: f32, y: f32, width: f32, height: f32, input: String) {
+        self.rect = Rect::new(x, y, width, height);
+        self.text = input;
+    }
+
+    fn draw(&self) {
+        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, WHITE);
+        let font_size = self.rect.h * 0.5;
+        let text_dimensions = measure_text(&self.text, None, font_size as u16, 1.0);
+        let text_x = self.rect.x + self.rect.w - text_dimensions.width;
+        let text_y = self.rect.y + (self.rect.h + text_dimensions.height) * 0.25;
+        draw_text(&self.text, text_x, text_y, font_size, BLACK);
+    }
+}
 
 struct Buttons {
     rect: Rect,
@@ -55,6 +83,10 @@ async fn main() {
     let mut input_buffer = vec![];
     let mut clr:bool = false;
     let mut output:f64;
+    let mut display = ScreenRect::dim("input");
+    let mut display_height = height * 2.0;
+    display.update(border, border_h, usable_width, display_height, "input".to_string());
+    let mut display_buffer = vec![];
     let mut buttons3 = vec![
         Buttons::dim("+", 10.0),
         Buttons::dim("-", 11.0),
@@ -88,11 +120,13 @@ async fn main() {
         usable_height = screen_height() - (7.0 * border_h);
         width = usable_width / 3.0;
         height = usable_height / 7.0;
+        display_height = height * 2.0;
         row_3 = (border_h * 2.0) + (2.0 * height);
         row_4 = (border_h * 3.0) + (3.0 * height);
         row_5 = (border_h * 4.0) + (4.0 * height);
         row_6 = (border_h * 5.0) + (5.0 * height);
         row_7 = (border_h * 6.0) + (6.0 * height);
+        display.draw();
         for (i, button) in buttons3.iter_mut().enumerate() {
             let x = border + (i as f32) * (width + border);
             button.update(x, row_3, width, height);
@@ -100,6 +134,7 @@ async fn main() {
             if button.clicked() {
                 println!("Button {} clicked!", button.text);
                 input_buffer.push(button.value);
+                display_buffer.push(button.text.to_string());
             }
         }
         for (i, button) in buttons4.iter_mut().enumerate() {
@@ -109,6 +144,7 @@ async fn main() {
             if button.clicked() {
                 println!("Button {} clicked!", button.text);
                 input_buffer.push(button.value);
+                display_buffer.push(button.text.to_string());
             }
         }
         for (i, button) in buttons5.iter_mut().enumerate() {
@@ -118,6 +154,7 @@ async fn main() {
             if button.clicked() {
                 println!("Button {} clicked!", button.text);
                 input_buffer.push(button.value);
+                display_buffer.push(button.text.to_string());
             }
         }
         for (i, button) in buttons6.iter_mut().enumerate() {
@@ -127,6 +164,7 @@ async fn main() {
             if button.clicked() {
                 println!("Button {} clicked!", button.text);
                 input_buffer.push(button.value);
+                display_buffer.push(button.text.to_string());
             }
         }
         for (i, button) in buttons7.iter_mut().enumerate() {
@@ -137,6 +175,7 @@ async fn main() {
                 println!("Button {} clicked!", button.text);
                 if button.value == 0.0 {
                     input_buffer.push(button.value);
+                    display_buffer.push(button.text.to_string());
                 }
                 if button.value == 13.0 {
                     clr = true;
@@ -146,14 +185,21 @@ async fn main() {
                     println!("{}", output);
                     input_buffer.clear();
                     input_buffer.push(output);
+                    display_buffer.clear();
+                    display_buffer.push(format!("{}", output));
                 }
             }
         }
         if clr == true {
             input_buffer.clear();
+            display_buffer.clear();
             println!("Input Buffer Cleared");
             clr = false;
         }
+
+        display.update(border, border_h, usable_width, display_height, concatenate_strings(&display_buffer).await);
+        display.draw();
+
         if is_quit_requested() {
             break;
         }
