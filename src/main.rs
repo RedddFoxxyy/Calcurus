@@ -1,6 +1,7 @@
 use macroquad::miniquad::window::set_window_size;
 use macroquad::prelude::*;
-use crate::operations::{concatenate_strings, operate};
+
+use crate::operations::concatenate_strings;
 
 mod operations;
 
