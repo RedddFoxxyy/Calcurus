@@ -1,1 +1,1 @@
-D:\Developement\Rust\calculator\target\debug\calculator.exe: D:\Developement\Rust\calculator\src\main.rs D:\Developement\Rust\calculator\src\operations.rs
+/home/suyog/vscode\ projects/Calcurus/target/debug/calculator: /home/suyog/vscode\ projects/Calcurus/src/main.rs /home/suyog/vscode\ projects/Calcurus/src/operations.rs

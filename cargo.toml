@@ -1,6 +1,0 @@
-[package]
-name = "calculator"
-edition = "2021"
-
-[dependencies]
-macroquad = "0.4"
