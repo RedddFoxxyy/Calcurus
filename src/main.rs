@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::operations::{concatenate_strings, key_code_return};
+use crate::operations::{concatenate_strings, key_check};
 
 mod operations;
 
@@ -70,9 +70,9 @@ impl Buttons {
         draw_text(&self.text, text_x, text_y, font_size, TEXT);
     }
 
-    fn clicked(&self, key: KeyCode) -> bool {
+    fn clicked(&self) -> bool {
         let mouse_position = mouse_position();
-        (self.rect.contains(Vec2::from(mouse_position)) && is_mouse_button_pressed(MouseButton::Left)) || is_key_pressed(key)
+        self.rect.contains(Vec2::from(mouse_position)) && is_mouse_button_pressed(MouseButton::Left)
     }
 }
 
@@ -154,7 +154,7 @@ async fn main() {
             let x = border + (i as f32) * (width + border);
             button.update(x, row_3, width, height);
             button.draw();
-            if button.clicked(key_code_return(button.value).await) {
+            if button.clicked() || key_check(button.value).await {
                 println!("Button {} clicked!", button.text);
                 input_buffer.push(button.value);
                 display_buffer.push(button.text.to_string());
@@ -164,7 +164,7 @@ async fn main() {
             let x = border + (i as f32) * (width + border);
             button.update(x, row_4, width, height);
             button.draw();
-            if button.clicked(key_code_return(button.value).await) {
+            if button.clicked() || key_check(button.value).await {
                 println!("Button {} clicked!", button.text);
                 input_buffer.push(button.value);
                 display_buffer.push(button.text.to_string());
@@ -174,7 +174,7 @@ async fn main() {
             let x = border + (i as f32) * (width + border);
             button.update(x, row_5, width, height);
             button.draw();
-            if button.clicked(key_code_return(button.value).await) {
+            if button.clicked() || key_check(button.value).await {
                 println!("Button {} clicked!", button.text);
                 input_buffer.push(button.value);
                 display_buffer.push(button.text.to_string());
@@ -184,15 +184,17 @@ async fn main() {
             let x = border + (i as f32) * (width + border);
             button.update(x, row_6, width, height);
             button.draw();
-            if button.clicked(key_code_return(button.value).await) {
+            if button.clicked() || key_check(button.value).await {
                 if button.value != 18.0 {
                     println!("Button {} clicked!", button.text);
                     input_buffer.push(button.value);
                     display_buffer.push(button.text.to_string());
                 }
                 else {
-                    input_buffer.remove(input_buffer.len() - 1);
-                    display_buffer.remove(display_buffer.len() - 1);
+                    if !input_buffer.is_empty() {
+                        input_buffer.remove(input_buffer.len() - 1);
+                        display_buffer.remove(display_buffer.len() - 1);
+                    }
                 }
             }
         }
@@ -200,7 +202,7 @@ async fn main() {
             let x = border + (i as f32) * (width + border);
             button.update(x, row_7, width, height);
             button.draw();
-            if button.clicked(key_code_return(button.value).await) {
+            if button.clicked() || key_check(button.value).await {
                 println!("Button {} clicked!", button.text);
                 if button.value == 0.0 || button.value == 16.0 {
                     input_buffer.push(button.value);

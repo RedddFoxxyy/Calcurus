@@ -72,8 +72,8 @@ pub(crate) async fn concatenate_strings(vector: &Vec<String>) -> String {
     result
 }
 
-pub(crate) async fn key_code_return(value: f64) -> KeyCode {
-    match value {
+pub(crate) async fn key_check(value: f64) -> bool {
+    /*match value {
         10.0 => KeyCode::KpAdd,
         11.0 => KeyCode::Minus,
         12.0 => KeyCode::KpMultiply,
@@ -93,5 +93,134 @@ pub(crate) async fn key_code_return(value: f64) -> KeyCode {
         9.0 => KeyCode::Key9,
         0.0 => KeyCode::Key0,
         _ => unreachable!(),
+    }*/
+    match value {
+        10.0 => {
+            if is_key_pressed(KeyCode::KpAdd) {
+                true
+            } else {
+                false
+            }
+        },
+        11.0 => {
+            if is_key_pressed(KeyCode::Minus) || is_key_pressed(KeyCode::KpSubtract) {
+                true
+            } else {
+                false
+            }
+        },
+        12.0 => {
+            if is_key_pressed(KeyCode::KpMultiply) {
+                true
+            } else {
+                false
+            }
+        },
+        15.0 => {
+            if is_key_pressed(KeyCode::KpDivide) || is_key_pressed(KeyCode::Slash) {
+                true
+            } else {
+                false
+            }
+        },
+        16.0 => {
+            if is_key_pressed(KeyCode::Period) || is_key_pressed(KeyCode::KpDecimal) {
+                true
+            } else {
+                false
+            }
+        },
+        14.0 => {
+            if is_key_pressed(KeyCode::Enter) || is_key_pressed(KeyCode::KpEnter) || is_key_pressed(KeyCode::KpEqual) {
+                true
+            } else {
+                false
+            }
+        },
+        13.0 => {
+            if is_key_pressed(KeyCode::Delete) {
+                true
+            } else {
+                false
+            }
+        },
+        18.0 => {
+            if is_key_pressed(KeyCode::Backspace) {
+                true
+            } else {
+                false
+            }
+        },
+        1.0 => {
+            if is_key_pressed(KeyCode::Key1) || is_key_pressed(KeyCode::Kp1) {
+                true
+            } else {
+                false
+            }
+        },
+        2.0 => {
+            if is_key_pressed(KeyCode::Key2) || is_key_pressed(KeyCode::Kp2) {
+                true
+            } else {
+                false
+            }
+        },
+        3.0 => {
+            if is_key_pressed(KeyCode::Key3) || is_key_pressed(KeyCode::Kp3) {
+                true
+            } else {
+                false
+            }
+        },
+        4.0 => {
+            if is_key_pressed(KeyCode::Key4) || is_key_pressed(KeyCode::Kp4) {
+                true
+            } else {
+                false
+            }
+        },
+        5.0 => {
+            if is_key_pressed(KeyCode::Key5) || is_key_pressed(KeyCode::Kp5) {
+                true
+            } else {
+                false
+            }
+        },
+        6.0 => {
+            if is_key_pressed(KeyCode::Key6) || is_key_pressed(KeyCode::Kp6) {
+                true
+            } else {
+                false
+            }
+        },
+        7.0 => {
+            if is_key_pressed(KeyCode::Key7) || is_key_pressed(KeyCode::Kp7) {
+                true
+            } else {
+                false
+            }
+        },
+        8.0 => {
+            if is_key_pressed(KeyCode::Key8) || is_key_pressed(KeyCode::Kp8) {
+                true
+            } else {
+                false
+            }
+        },
+        9.0 => {
+            if is_key_pressed(KeyCode::Key9) || is_key_pressed(KeyCode::Kp9) {
+                true
+            } else {
+                false
+            }
+        },
+        0.0 => {
+            if is_key_pressed(KeyCode::Key0) || is_key_pressed(KeyCode::Kp0) {
+                true
+            } else {
+                false
+            }
+        },
+        _ => false,
     }
 }
