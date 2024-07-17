@@ -3,7 +3,6 @@ use macroquad::prelude::*;
 use crate::operations::{concatenate_strings, key_check};
 
 mod operations;
-mod build;
 
 pub const BASE:Color = Color::new(0.1176470588235294, 0.1176470588235294, 0.1803921568627451, 1.0);
 pub const SURFACE1:Color = Color::new(0.2705882352941176, 0.2784313725490196, 0.3529411764705882, 1.0);
