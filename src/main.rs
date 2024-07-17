@@ -77,9 +77,18 @@ impl Buttons {
     }
 }
 
-#[macroquad::main("Calcurus")]
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "Calcurus".to_owned(),
+        window_width: 400,
+        window_height: 600,
+        window_resizable: true,
+        ..Default::default()
+    }
+}
+
+#[macroquad::main(window_conf())]
 async fn main() {
-    set_window_size(400, 600);
     let mut border = screen_width() * 0.02;
     let mut border_h = screen_height() * 0.02;
     let mut usable_width = screen_width() - (5.0 * border);
