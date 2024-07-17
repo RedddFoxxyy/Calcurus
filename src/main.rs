@@ -5,6 +5,10 @@ use crate::operations::concatenate_strings;
 
 mod operations;
 
+pub const BASE:Color = Color::new(0.1176470588235294, 0.1176470588235294, 0.1803921568627451, 1.0);
+pub const SURFACE1:Color = Color::new(0.2705882352941176, 0.2784313725490196, 0.3529411764705882, 1.0);
+pub const TEXT:Color = Color::new(0.803921568627451, 0.8392156862745098, 0.9568627450980392, 1.0);
+
 struct ScreenRect {
     rect: Rect,
     text:String,
@@ -24,12 +28,18 @@ impl ScreenRect {
     }
 
     fn draw(&self) {
-        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, WHITE);
-        let font_size = self.rect.h * 0.5;
-        let text_dimensions = measure_text(&self.text, None, font_size as u16, 1.0);
+        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, BASE);
+        let mut font_size = self.rect.h * 0.4;
+        let mut text_dimensions = measure_text(&self.text, None, font_size as u16, 1.0);
+
+        if text_dimensions.width > self.rect.w {
+            font_size = (self.rect.w * font_size) / text_dimensions.width;
+            text_dimensions = measure_text(&self.text, None, font_size as u16, 1.0);
+        }
+
         let text_x = self.rect.x + self.rect.w - text_dimensions.width;
         let text_y = self.rect.y + (self.rect.h + text_dimensions.height) * 0.25;
-        draw_text(&self.text, text_x, text_y, font_size, BLACK);
+        draw_text(&self.text, text_x, text_y, font_size, TEXT);
     }
 }
 
@@ -53,12 +63,12 @@ impl Buttons {
     }
 
     fn draw(&self) {
-        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, GRAY);
+        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, SURFACE1);
         let font_size = self.rect.h * 0.5;
         let text_dimensions = measure_text(&self.text, None, font_size as u16, 1.0);
         let text_x = self.rect.x + (self.rect.w - text_dimensions.width) * 0.5;
         let text_y = self.rect.y + (self.rect.h + text_dimensions.height) * 0.5;
-        draw_text(&self.text, text_x, text_y, font_size, BLACK);
+        draw_text(&self.text, text_x, text_y, font_size, TEXT);
     }
 
     fn clicked(&self) -> bool {
@@ -72,9 +82,9 @@ async fn main() {
     set_window_size(400, 600);
     let mut border = screen_width() * 0.02;
     let mut border_h = screen_height() * 0.02;
-    let mut usable_width = screen_width() - (4.0 * border);
+    let mut usable_width = screen_width() - (5.0 * border);
     let mut usable_height = screen_height() - (7.0 * border);
-    let mut width = usable_width / 3.0;
+    let mut width = usable_width / 4.0;
     let mut height = usable_height / 7.0;
     let mut row_3:f32 = (border_h * 2.0) + (2.0 * height);
     let mut row_4:f32 = (border_h * 3.0) + (3.0 * height);
@@ -92,11 +102,13 @@ async fn main() {
         Buttons::dim("+", 10.0),
         Buttons::dim("-", 11.0),
         Buttons::dim("*", 12.0),
+        Buttons::dim("/", 15.0),
     ];
     let mut buttons4 = vec![
         Buttons::dim("1", 1.0),
         Buttons::dim("2", 2.0),
         Buttons::dim("3", 3.0),
+        //Buttons::dim("√", 17.0),
     ];
     let mut buttons5 = vec![
         Buttons::dim("4", 4.0),
@@ -111,15 +123,16 @@ async fn main() {
     let mut buttons7 = vec![
         Buttons::dim("0", 0.0),
         Buttons::dim("clr", 13.0),
+        Buttons::dim(".", 16.0),
         Buttons::dim("=", 14.0),
     ];
     loop {
-        clear_background(WHITE);
+        clear_background(BASE);
         border = (screen_width() / 100.0) * 2.0;
         border_h = (screen_height() / 100.0) * 2.0;
-        usable_width = screen_width() - (4.0 * border);
+        usable_width = screen_width() - (5.0 * border);
         usable_height = screen_height() - (7.0 * border_h);
-        width = usable_width / 3.0;
+        width = usable_width / 4.0;
         height = usable_height / 7.0;
         display_height = height * 2.0;
         row_3 = (border_h * 2.0) + (2.0 * height);
@@ -174,7 +187,7 @@ async fn main() {
             button.draw();
             if button.clicked() {
                 println!("Button {} clicked!", button.text);
-                if button.value == 0.0 {
+                if button.value == 0.0 || button.value == 16.0 {
                     input_buffer.push(button.value);
                     display_buffer.push(button.text.to_string());
                 }
