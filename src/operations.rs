@@ -72,3 +72,26 @@ pub(crate) async fn concatenate_strings(vector: &Vec<String>) -> String {
     result
 }
 
+pub(crate) async fn key_code_return(value: f64) -> KeyCode {
+    match value {
+        10.0 => KeyCode::KpAdd,
+        11.0 => KeyCode::Minus,
+        12.0 => KeyCode::KpMultiply,
+        15.0 => KeyCode::KpDivide,
+        16.0 => KeyCode::Period,
+        14.0 => KeyCode::Enter,
+        13.0 => KeyCode::Delete,
+        18.0 => KeyCode::Backspace,
+        1.0 => KeyCode::Key1,
+        2.0 => KeyCode::Key2,
+        3.0 => KeyCode::Key3,
+        4.0 => KeyCode::Key4,
+        5.0 => KeyCode::Key5,
+        6.0 => KeyCode::Key6,
+        7.0 => KeyCode::Key7,
+        8.0 => KeyCode::Key8,
+        9.0 => KeyCode::Key9,
+        0.0 => KeyCode::Key0,
+        _ => unreachable!(),
+    }
+}
