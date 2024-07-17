@@ -37,7 +37,7 @@ impl ScreenRect {
             text_dimensions = measure_text(&self.text, None, font_size as u16, 1.0);
         }
 
-        let text_x = self.rect.x + self.rect.w - text_dimensions.width;
+        let text_x = self.rect.x + self.rect.w - text_dimensions.width + 10.0;
         let text_y = self.rect.y + (self.rect.h + text_dimensions.height) * 0.25;
         draw_text(&self.text, text_x, text_y, font_size, TEXT);
     }
@@ -119,6 +119,7 @@ async fn main() {
         Buttons::dim("7", 7.0),
         Buttons::dim("8", 8.0),
         Buttons::dim("9", 9.0),
+        Buttons::dim("bck", 18.0),
     ];
     let mut buttons7 = vec![
         Buttons::dim("0", 0.0),
@@ -176,9 +177,15 @@ async fn main() {
             button.update(x, row_6, width, height);
             button.draw();
             if button.clicked() {
-                println!("Button {} clicked!", button.text);
-                input_buffer.push(button.value);
-                display_buffer.push(button.text.to_string());
+                if button.value != 18.0 {
+                    println!("Button {} clicked!", button.text);
+                    input_buffer.push(button.value);
+                    display_buffer.push(button.text.to_string());
+                }
+                else {
+                    input_buffer.remove(input_buffer.len() - 1);
+                    display_buffer.remove(display_buffer.len() - 1);
+                }
             }
         }
         for (i, button) in buttons7.iter_mut().enumerate() {
