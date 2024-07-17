@@ -1,6 +1,13 @@
 [package]
-name = "calculator"
+name = "Calcurus"
 edition = "2021"
 
 [dependencies]
 macroquad = "0.4"
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = true
+panic = 'abort'
+codegen-units = 1

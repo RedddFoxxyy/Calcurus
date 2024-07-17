@@ -3,6 +3,7 @@ use macroquad::prelude::*;
 use crate::operations::{concatenate_strings, key_check};
 
 mod operations;
+mod build;
 
 pub const BASE:Color = Color::new(0.1176470588235294, 0.1176470588235294, 0.1803921568627451, 1.0);
 pub const SURFACE1:Color = Color::new(0.2705882352941176, 0.2784313725490196, 0.3529411764705882, 1.0);
@@ -155,7 +156,7 @@ async fn main() {
             button.update(x, row_3, width, height);
             button.draw();
             if button.clicked() || key_check(button.value).await {
-                println!("Button {} clicked!", button.text);
+                //println!("Button {} clicked!", button.text);
                 input_buffer.push(button.value);
                 display_buffer.push(button.text.to_string());
             }
@@ -165,7 +166,7 @@ async fn main() {
             button.update(x, row_4, width, height);
             button.draw();
             if button.clicked() || key_check(button.value).await {
-                println!("Button {} clicked!", button.text);
+                //println!("Button {} clicked!", button.text);
                 input_buffer.push(button.value);
                 display_buffer.push(button.text.to_string());
             }
@@ -175,7 +176,7 @@ async fn main() {
             button.update(x, row_5, width, height);
             button.draw();
             if button.clicked() || key_check(button.value).await {
-                println!("Button {} clicked!", button.text);
+                //println!("Button {} clicked!", button.text);
                 input_buffer.push(button.value);
                 display_buffer.push(button.text.to_string());
             }
@@ -186,7 +187,7 @@ async fn main() {
             button.draw();
             if button.clicked() || key_check(button.value).await {
                 if button.value != 18.0 {
-                    println!("Button {} clicked!", button.text);
+                    //println!("Button {} clicked!", button.text);
                     input_buffer.push(button.value);
                     display_buffer.push(button.text.to_string());
                 }
@@ -203,7 +204,7 @@ async fn main() {
             button.update(x, row_7, width, height);
             button.draw();
             if button.clicked() || key_check(button.value).await {
-                println!("Button {} clicked!", button.text);
+                //println!("Button {} clicked!", button.text);
                 if button.value == 0.0 || button.value == 16.0 {
                     input_buffer.push(button.value);
                     display_buffer.push(button.text.to_string());
@@ -213,7 +214,7 @@ async fn main() {
                 }
                 if button.value== 14.0 {
                     output = operations::operate(&input_buffer).await;
-                    println!("{}", output);
+                    //println!("{}", output);
                     input_buffer.clear();
                     input_buffer.push(output);
                     display_buffer.clear();
@@ -224,7 +225,7 @@ async fn main() {
         if clr == true {
             input_buffer.clear();
             display_buffer.clear();
-            println!("Input Buffer Cleared");
+            //println!("Input Buffer Cleared");
             clr = false;
         }
 
