@@ -47,10 +47,10 @@ impl ScreenRect {
 struct Buttons {
     rect: Rect,
     text: String,
-    value: f64,
+    value: u8,
 }
 impl Buttons {
-    fn dim(text: &str, value: f64)-> Self {
+    fn dim(text: &str, value: u8)-> Self {
         Buttons {
             rect: Rect::new(0.0, 0.0, 0.0, 0.0),
             text: text.to_string(),
@@ -109,33 +109,33 @@ async fn main() {
     display.update(border, border_h, usable_width, display_height, "input".to_string());
     let mut display_buffer = vec![];
     let mut buttons3 = vec![
-        Buttons::dim("+", 10.0),
-        Buttons::dim("-", 11.0),
-        Buttons::dim("*", 12.0),
-        Buttons::dim("/", 15.0),
+        Buttons::dim("+", 10),
+        Buttons::dim("-", 11),
+        Buttons::dim("×", 12),
+        Buttons::dim("÷", 15),
     ];
     let mut buttons4 = vec![
-        Buttons::dim("1", 1.0),
-        Buttons::dim("2", 2.0),
-        Buttons::dim("3", 3.0),
+        Buttons::dim("1", 1),
+        Buttons::dim("2", 2),
+        Buttons::dim("3", 3),
         //Buttons::dim("√", 17.0),
     ];
     let mut buttons5 = vec![
-        Buttons::dim("4", 4.0),
-        Buttons::dim("5", 5.0),
-        Buttons::dim("6", 6.0),
+        Buttons::dim("4", 4),
+        Buttons::dim("5", 5),
+        Buttons::dim("6", 6),
     ];
     let mut buttons6 = vec![
-        Buttons::dim("7", 7.0),
-        Buttons::dim("8", 8.0),
-        Buttons::dim("9", 9.0),
-        Buttons::dim("bck", 18.0),
+        Buttons::dim("7", 7),
+        Buttons::dim("8", 8),
+        Buttons::dim("9", 9),
+        Buttons::dim("bck", 18),
     ];
     let mut buttons7 = vec![
-        Buttons::dim("0", 0.0),
-        Buttons::dim("clr", 13.0),
-        Buttons::dim(".", 16.0),
-        Buttons::dim("=", 14.0),
+        Buttons::dim("0", 0),
+        Buttons::dim("clr", 13),
+        Buttons::dim(".", 16),
+        Buttons::dim("=", 14),
     ];
     loop {
         clear_background(BASE);
@@ -187,7 +187,7 @@ async fn main() {
             button.update(x, row_6, width, height);
             button.draw();
             if button.clicked() || key_check(button.value).await {
-                if button.value != 18.0 {
+                if button.value != 18 {
                     //println!("Button {} clicked!", button.text);
                     input_buffer.push(button.value);
                     display_buffer.push(button.text.to_string());
@@ -206,18 +206,18 @@ async fn main() {
             button.draw();
             if button.clicked() || key_check(button.value).await {
                 //println!("Button {} clicked!", button.text);
-                if button.value == 0.0 || button.value == 16.0 {
+                if button.value == 0 || button.value == 16 {
                     input_buffer.push(button.value);
                     display_buffer.push(button.text.to_string());
                 }
-                if button.value == 13.0 {
+                if button.value == 13 {
                     clr = true;
                 }
-                if button.value== 14.0 {
+                if button.value== 14 {
                     output = operations::operate(&input_buffer).await;
                     //println!("{}", output);
                     input_buffer.clear();
-                    input_buffer.push(output);
+                    operations::f64_to_u8_vec(output, &mut input_buffer);
                     display_buffer.clear();
                     display_buffer.push(format!("{}", output));
                 }
