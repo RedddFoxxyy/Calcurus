@@ -108,6 +108,7 @@ async fn main() {
     let mut display_height = height * 2.0;
     display.update(border, border_h, usable_width, display_height, "input".to_string());
     let mut display_buffer = vec![];
+    let mut decimal_present = false;
     let mut buttons3 = vec![
         Buttons::dim("+", 10),
         Buttons::dim("-", 11),
@@ -157,9 +158,21 @@ async fn main() {
             button.update(x, row_3, width, height);
             button.draw();
             if button.clicked() || key_check(button.value).await {
+                if input_buffer.is_empty()
+                    && (button.value == 10
+                    || button.value == 11){
+                    input_buffer.push(button.value);
+                    display_buffer.push(button.text.to_string());
+                }else if !input_buffer.is_empty() {
+                    if input_buffer.last().unwrap() != &10
+                        && input_buffer.last().unwrap() != &11
+                        && input_buffer.last().unwrap() != &12
+                        && input_buffer.last().unwrap() != &15 {
+                        input_buffer.push(button.value);
+                        display_buffer.push(button.text.to_string());
+                    }
+                }
                 //println!("Button {} clicked!", button.text);
-                input_buffer.push(button.value);
-                display_buffer.push(button.text.to_string());
             }
         }
         for (i, button) in buttons4.iter_mut().enumerate() {
@@ -194,6 +207,9 @@ async fn main() {
                 }
                 else {
                     if !input_buffer.is_empty() {
+                        if input_buffer.last().unwrap() == &16 {
+                            decimal_present = false;
+                        }
                         input_buffer.remove(input_buffer.len() - 1);
                         display_buffer.remove(display_buffer.len() - 1);
                     }
@@ -206,9 +222,21 @@ async fn main() {
             button.draw();
             if button.clicked() || key_check(button.value).await {
                 //println!("Button {} clicked!", button.text);
-                if button.value == 0 || button.value == 16 {
+                if button.value == 0 {
                     input_buffer.push(button.value);
                     display_buffer.push(button.text.to_string());
+                }
+                if button.value == 16 && !decimal_present{
+                    if !input_buffer.is_empty() {
+                        if input_buffer.last().unwrap() != &16 {
+                            input_buffer.push(button.value);
+                            display_buffer.push(button.text.to_string());
+                        }
+                    }else {
+                        input_buffer.push(button.value);
+                        display_buffer.push(button.text.to_string());
+                    }
+                    decimal_present = true;
                 }
                 if button.value == 13 {
                     clr = true;
@@ -219,6 +247,7 @@ async fn main() {
                     input_buffer.clear();
                     operations::f64_to_u8_vec(output, &mut input_buffer);
                     display_buffer.clear();
+                    decimal_present = false;
                     display_buffer.push(format!("{}", output));
                 }
             }
@@ -228,6 +257,7 @@ async fn main() {
             display_buffer.clear();
             //println!("Input Buffer Cleared");
             clr = false;
+            decimal_present = false;
         }
 
         display.update(border, border_h, usable_width, display_height, concatenate_strings(&display_buffer).await);
