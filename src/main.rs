@@ -109,6 +109,7 @@ async fn main() {
     display.update(border, border_h, usable_width, display_height, "input".to_string());
     let mut display_buffer = vec![];
     let mut decimal_present = false;
+    let divide_by_zero = "Can't divide by 0.";
     let mut buttons3 = vec![
         Buttons::dim("+", 10),
         Buttons::dim("-", 11),
@@ -159,8 +160,7 @@ async fn main() {
             button.draw();
             if button.clicked() || key_check(button.value).await {
                 if input_buffer.is_empty()
-                    && (button.value == 10
-                    || button.value == 11){
+                    && (button.value == 10 || button.value == 11){
                     input_buffer.push(button.value);
                     display_buffer.push(button.text.to_string());
                 }else if !input_buffer.is_empty() {
@@ -224,8 +224,14 @@ async fn main() {
             if button.clicked() || key_check(button.value).await {
                 //println!("Button {} clicked!", button.text);
                 if button.value == 0 {
-                    input_buffer.push(button.value);
-                    display_buffer.push(button.text.to_string());
+                    if input_buffer.last().unwrap() != &15 {
+                        input_buffer.push(button.value);
+                        display_buffer.push(button.text.to_string());
+                    }else{
+                        input_buffer.clear();
+                        display_buffer.clear();
+                        display_buffer.push(divide_by_zero.to_string());
+                    }
                 }
                 if button.value == 16 && !decimal_present{
                     if !input_buffer.is_empty() {
