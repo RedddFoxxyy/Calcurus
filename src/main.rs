@@ -170,6 +170,7 @@ async fn main() {
                         && input_buffer.last().unwrap() != &15 {
                         input_buffer.push(button.value);
                         display_buffer.push(button.text.to_string());
+                        decimal_present = false;
                     }
                 }
                 //println!("Button {} clicked!", button.text);
@@ -244,10 +245,10 @@ async fn main() {
                 if button.value== 14 {
                     output = operations::operate(&input_buffer).await;
                     //println!("{}", output);
-                    input_buffer.clear();
-                    operations::f64_to_u8_vec(output, &mut input_buffer);
-                    display_buffer.clear();
                     decimal_present = false;
+                    input_buffer.clear();
+                    operations::f64_to_u8_vec(output, &mut input_buffer, &mut decimal_present);
+                    display_buffer.clear();
                     display_buffer.push(format!("{}", output));
                 }
             }

@@ -61,6 +61,10 @@ pub(crate) async fn operate(vec: &Vec<u8>) -> f64 {
         input = input_buf;
     }
 
+    let tolerance = 1e-14;
+    if (input - input.round().abs()) < tolerance {
+        input = input.round();
+    }
     input
 }
 
@@ -225,13 +229,17 @@ pub(crate) async fn key_check(value: u8) -> bool {
     }
 }
 
-pub(crate) fn f64_to_u8_vec(num: f64, input_buffer: &mut Vec<u8>) {
+pub(crate) fn f64_to_u8_vec(num: f64, input_buffer: &mut Vec<u8>, decimal: &mut bool) {
     let string_num = num.to_string();
 
     for char in string_num.chars() {
         match char {
             '0'..='9' => input_buffer.push(char as u8 - b'0'),
-            '.' => input_buffer.push(16),
+            '.' => {input_buffer.push(16);
+                    *decimal = true;
+                },
+            '-' => input_buffer.push(11),
+            '+' => input_buffer.push(10),
             _ => {} // Ignore other characters
         }
     }
