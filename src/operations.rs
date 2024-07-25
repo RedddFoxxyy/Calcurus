@@ -1,11 +1,12 @@
 use macroquad::prelude::*;
+use rust_decimal::prelude::*;
 
 pub(crate) async fn operate(vec: &Vec<u8>) -> f64 {
-    let mut input: f64 = 0.0;
-    let mut input_buf: f64 = 0.0;
+    let mut input: Decimal = 0_u8.into();
+    let mut input_buf: Decimal = 0_u8.into();
     let mut operator: Option<u8> = None;
     let mut i = 0;
-    let mut decimal_factor: f64 = 0.1;
+    let mut decimal_factor = Decimal::from_f64(0.1).unwrap();
     let mut is_decimal = false;
 
     while i < vec.len() {
@@ -16,7 +17,7 @@ pub(crate) async fn operate(vec: &Vec<u8>) -> f64 {
             if operator.is_none() {
                 // If there's no previous operator, move input_buf to input
                 input = input_buf;
-                input_buf = 0.0;
+                input_buf = 0_u8.into();
             } else {
                 // If there's a previous operator, perform the operation
                 match operator.unwrap() {
@@ -26,21 +27,23 @@ pub(crate) async fn operate(vec: &Vec<u8>) -> f64 {
                     15 => input /= input_buf,
                     _ => unreachable!(),
                 }
-                input_buf = 0.0;
+                input_buf = 0_u8.into();
             }
             operator = Some(current);
             is_decimal = false;
-            decimal_factor = 0.1;
+            decimal_factor = Decimal::from_f64(0.1).unwrap();
         } else if current == 16 {
             // Decimal point
             is_decimal = true;
         } else {
             // Building number in input_buf
+            let current_dec: Decimal = current.into();
             if is_decimal {
-                input_buf += current as f64 * decimal_factor;
-                decimal_factor *= 0.1;
+                input_buf += current_dec * decimal_factor;
+                decimal_factor *= Decimal::from_f64(0.1).unwrap();
             } else {
-                input_buf = input_buf * 10.0 + current as f64;
+                let power_shift: Decimal = 10.into();
+                input_buf = (input_buf * power_shift) + current_dec;
             }
         }
 
@@ -60,12 +63,7 @@ pub(crate) async fn operate(vec: &Vec<u8>) -> f64 {
         // If there's no final operator, add the input_buf to input
         input = input_buf;
     }
-
-    let tolerance = 1e-14;
-    if (input - input.round().abs()) < tolerance {
-        input = input.round();
-    }
-    input
+    input.to_f64().unwrap()
 }
 
 pub(crate) async fn concatenate_strings(vector: &Vec<String>) -> String {
