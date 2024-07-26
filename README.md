@@ -28,6 +28,17 @@ Calcurus is a simple calculator written in Rust using the macroquad framework. I
 
 ## Contributing:
    -Contributions are welcome! If you’d like to contribute to Calcurus, follow these steps:
+   1. Fork the repository.
+   2. Create a new branch: 
+      ```bash
+         git checkout -b feature/my-feature.
+   3. Make your changes and commit them: 
+      ```bash
+         git commit -m "Add feature XYZ".
+   4. Push to your forked repository: 
+      ```bash
+         git push origin feature/my-feature.
+   5. Open a pull request on GitHub.
 
 ## License:
    -Calcurus is licensed under the Apache License 2.0. See the LICENSE file for details.
