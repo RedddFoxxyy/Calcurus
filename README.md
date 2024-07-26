@@ -20,6 +20,7 @@ Calcurus is a simple calculator written in Rust using the macroquad framework. I
 3.**Build the Project:**
    ```bash
    cargo build --release
+   ```
 
 4.**Run the Executable:**
    -After building successfully, you’ll find the release executable in the target/release directory. Run it from the project root:
