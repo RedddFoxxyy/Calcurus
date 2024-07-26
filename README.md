@@ -4,7 +4,7 @@ Calcurus is a simple calculator written in Rust using the macroquad framework. I
 
 ## Features
 
-- Basic arithmetic operations (addition, subtraction, multiplication, division)
+- Basic arithmetic operations (addition, subtraction, multiplication, division) with integers and decimals
 - Graphical user interface (GUI)
 
 ## Installation
@@ -26,3 +26,6 @@ Calcurus is a simple calculator written in Rust using the macroquad framework. I
 
 5.**Contributing:**
    -Contributions are welcome! If you’d like to contribute to Calcurus, follow these steps:
+
+6.**License:**
+   -Calcurus is licensed under the Apache License 2.0. See the LICENSE file for details.
