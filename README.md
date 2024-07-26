@@ -17,17 +17,16 @@ Calcurus is a simple calculator written in Rust using the macroquad framework. I
    git clone https://github.com/your-username/calcurus.git
    cd calcurus
 
-3.**Build the Project:**
+3. **Build the Project:**
    ```bash
    cargo build --release
-   ```
 
-4.**Run the Executable:**
+4. **Run the Executable:**
    -After building successfully, you’ll find the release executable in the target/release directory. Run it from the project root:
     ```./target/release/calcurus
 
-5.**Contributing:**
+5. **Contributing:**
    -Contributions are welcome! If you’d like to contribute to Calcurus, follow these steps:
 
-6.**License:**
+6. **License:**
    -Calcurus is licensed under the Apache License 2.0. See the LICENSE file for details.
