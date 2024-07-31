@@ -12,15 +12,14 @@ pub const TEXT:Color = Color::new(0.803921568627451, 0.8392156862745098, 0.95686
 
 struct ScreenRect {
     rect: Rect,
-    text:String,
+    text: String,
 }
 impl ScreenRect {
-    fn dim(text: &str)-> Self {
+    fn dim(text: &str) -> Self {
         ScreenRect {
             rect: Rect::new(0.0, 0.0, 0.0, 0.0),
             text: text.to_string(),
         }
-
     }
 
     fn update(&mut self, x: f32, y: f32, width: f32, height: f32, input: String) {
@@ -50,13 +49,12 @@ struct Buttons {
     value: u8,
 }
 impl Buttons {
-    fn dim(text: &str, value: u8)-> Self {
+    fn dim(text: &str, value: u8) -> Self {
         Buttons {
             rect: Rect::new(0.0, 0.0, 0.0, 0.0),
             text: text.to_string(),
             value,
         }
-
     }
 
     fn update(&mut self, x: f32, y: f32, width: f32, height: f32) {
@@ -96,19 +94,20 @@ async fn main() {
     let mut usable_height = screen_height() - (7.0 * border);
     let mut width = usable_width / 4.0;
     let mut height = usable_height / 7.0;
-    let mut row_3:f32 = (border_h * 2.0) + (2.0 * height);
-    let mut row_4:f32 = (border_h * 3.0) + (3.0 * height);
-    let mut row_5:f32 = (border_h * 4.0) + (4.0 * height);
-    let mut row_6:f32 = (border_h * 5.0) + (5.0 * height);
-    let mut row_7:f32 = (border_h * 6.0) + (6.0 * height);
+    let mut row_3: f32 = (border_h * 2.0) + (2.0 * height);
+    let mut row_4: f32 = (border_h * 3.0) + (3.0 * height);
+    let mut row_5: f32 = (border_h * 4.0) + (4.0 * height);
+    let mut row_6: f32 = (border_h * 5.0) + (5.0 * height);
+    let mut row_7: f32 = (border_h * 6.0) + (6.0 * height);
     let mut input_buffer = vec![];
-    let mut clr:bool = false;
-    let mut output:f64;
+    let mut clr: bool = false;
+    let mut output: f64;
     let mut display = ScreenRect::dim("input");
     let mut display_height = height * 2.0;
     display.update(border, border_h, usable_width, display_height, "input".to_string());
     let mut display_buffer = vec![];
     let mut decimal_present = false;
+    let divide_by_zero = "Can't divide by 0.";
     let mut buttons3 = vec![
         Buttons::dim("+", 10),
         Buttons::dim("-", 11),
@@ -158,16 +157,15 @@ async fn main() {
             button.update(x, row_3, width, height);
             button.draw();
             if button.clicked() || key_check(button.value).await {
-                if input_buffer.is_empty()
-                    && (button.value == 10
-                    || button.value == 11){
+                if input_buffer.is_empty() && (button.value == 10 || button.value == 11) {
                     input_buffer.push(button.value);
                     display_buffer.push(button.text.to_string());
-                }else if !input_buffer.is_empty() {
+                } else if !input_buffer.is_empty() {
                     if input_buffer.last().unwrap() != &10
                         && input_buffer.last().unwrap() != &11
                         && input_buffer.last().unwrap() != &12
-                        && input_buffer.last().unwrap() != &15 {
+                        && input_buffer.last().unwrap() != &15
+                    {
                         input_buffer.push(button.value);
                         display_buffer.push(button.text.to_string());
                         decimal_present = false;
@@ -205,8 +203,7 @@ async fn main() {
                     //println!("Button {} clicked!", button.text);
                     input_buffer.push(button.value);
                     display_buffer.push(button.text.to_string());
-                }
-                else {
+                } else {
                     if !input_buffer.is_empty() {
                         if input_buffer.last().unwrap() == &16 {
                             decimal_present = false;
@@ -224,16 +221,25 @@ async fn main() {
             if button.clicked() || key_check(button.value).await {
                 //println!("Button {} clicked!", button.text);
                 if button.value == 0 {
-                    input_buffer.push(button.value);
-                    display_buffer.push(button.text.to_string());
+                    if !input_buffer.is_empty() && input_buffer.last().unwrap() != &15 {
+                        input_buffer.push(button.value);
+                        display_buffer.push(button.text.to_string());
+                    } else if input_buffer.is_empty() {
+                        input_buffer.push(button.value);
+                        display_buffer.push(button.text.to_string());
+                    } else {
+                        input_buffer.clear();
+                        display_buffer.clear();
+                        display_buffer.push(divide_by_zero.to_string());
+                    }
                 }
-                if button.value == 16 && !decimal_present{
+                if button.value == 16 && !decimal_present {
                     if !input_buffer.is_empty() {
                         if input_buffer.last().unwrap() != &16 {
                             input_buffer.push(button.value);
                             display_buffer.push(button.text.to_string());
                         }
-                    }else {
+                    } else {
                         input_buffer.push(button.value);
                         display_buffer.push(button.text.to_string());
                     }
@@ -242,7 +248,7 @@ async fn main() {
                 if button.value == 13 {
                     clr = true;
                 }
-                if button.value== 14 {
+                if button.value == 14 {
                     output = operations::operate(&input_buffer).await;
                     //println!("{}", output);
                     decimal_present = false;
