@@ -23,8 +23,8 @@ Calcurus is a simple calculator written in Rust using the macroquad framework. I
 
 4. **Run the Executable:**
    - After building successfully, you’ll find the release executable in the target/release directory. Run it from the project root:
-   ```bash
-   ./target/release/calcurus
+      ```bash
+      ./target/release/calcurus
 
 ## Contributing:
    - Contributions are welcome! If you’d like to contribute to Calcurus, follow these steps:
