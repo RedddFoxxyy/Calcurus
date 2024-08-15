@@ -88,6 +88,7 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf())]
 async fn main() {
+    clear_background(BASE);
     let mut border = screen_width() * 0.02;
     let mut border_h = screen_height() * 0.02;
     let mut usable_width = screen_width() - (5.0 * border);
