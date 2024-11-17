@@ -8,6 +8,7 @@ mod operations;
 
 pub const BASE:Color = Color::new(0.1176470588235294, 0.1176470588235294, 0.1803921568627451, 1.0);
 pub const SURFACE1:Color = Color::new(0.2705882352941176, 0.2784313725490196, 0.3529411764705882, 1.0);
+pub const SURFACE1HOVERED:Color = Color::new(0.2705882352941176, 0.2784313725490196, 0.3529411764705882, 1.0);
 pub const TEXT:Color = Color::new(0.803921568627451, 0.8392156862745098, 0.9568627450980392, 1.0);
 
 struct ScreenRect {
@@ -62,7 +63,13 @@ impl Buttons {
     }
 
     fn draw(&self) {
-        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, SURFACE1);
+        let color = if self.rect.contains(Vec2::from(mouse_position())) {
+            SURFACE1HOVERED
+        } else {
+            SURFACE1
+        };
+        
+        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, color);
         let font_size = self.rect.h * 0.5;
         let text_dimensions = measure_text(&self.text, None, font_size as u16, 1.0);
         let text_x = self.rect.x + (self.rect.w - text_dimensions.width) * 0.5;
@@ -71,8 +78,7 @@ impl Buttons {
     }
 
     fn clicked(&self) -> bool {
-        let mouse_position = mouse_position();
-        self.rect.contains(Vec2::from(mouse_position)) && is_mouse_button_pressed(MouseButton::Left)
+        self.rect.contains(Vec2::from(mouse_position())) && is_mouse_button_pressed(MouseButton::Left)
     }
 }
 
