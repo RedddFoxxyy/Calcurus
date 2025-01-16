@@ -6,10 +6,30 @@ use crate::operations::{concatenate_strings, key_check};
 
 mod operations;
 
-pub const BASE:Color = Color::new(0.1176470588235294, 0.1176470588235294, 0.1803921568627451, 1.0);
-pub const SURFACE1:Color = Color::new(0.2705882352941176, 0.2784313725490196, 0.3529411764705882, 1.0);
-pub const SURFACE1HOVERED:Color = Color::new(0.49803921568627450980392156862745, 0.51764705882352941176470588235294, 0.61176470588235294117647058823529, 1.0);
-pub const TEXT:Color = Color::new(0.803921568627451, 0.8392156862745098, 0.9568627450980392, 1.0);
+pub const BASE: Color = Color::new(
+    0.1176470588235294,
+    0.1176470588235294,
+    0.1803921568627451,
+    1.0,
+);
+pub const SURFACE1: Color = Color::new(
+    0.2705882352941176,
+    0.2784313725490196,
+    0.3529411764705882,
+    1.0,
+);
+pub const SURFACE1HOVERED: Color = Color::new(
+    0.49803921568627450980392156862745,
+    0.51764705882352941176470588235294,
+    0.61176470588235294117647058823529,
+    1.0,
+);
+pub const TEXT: Color = Color::new(
+    0.803921568627451,
+    0.8392156862745098,
+    0.9568627450980392,
+    1.0,
+);
 
 struct ScreenRect {
     rect: Rect,
@@ -68,7 +88,7 @@ impl Buttons {
         } else {
             SURFACE1
         };
-        
+
         draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, color);
         let font_size = self.rect.h * 0.5;
         let text_dimensions = measure_text(&self.text, None, font_size as u16, 1.0);
@@ -78,7 +98,8 @@ impl Buttons {
     }
 
     fn clicked(&self) -> bool {
-        self.rect.contains(Vec2::from(mouse_position())) && is_mouse_button_pressed(MouseButton::Left)
+        self.rect.contains(Vec2::from(mouse_position()))
+            && is_mouse_button_pressed(MouseButton::Left)
     }
 }
 
@@ -111,34 +132,40 @@ async fn main() {
     let mut output: f64;
     let mut display = ScreenRect::dim("input");
     let mut display_height = height * 2.0;
-    display.update(border, border_h, usable_width, display_height, "input".to_string());
+    display.update(
+        border,
+        border_h,
+        usable_width,
+        display_height,
+        "input".to_string(),
+    );
     let mut display_buffer = vec![];
     let mut decimal_present = false;
     let divide_by_zero = "Can't divide by 0.";
-    let mut buttons3 = vec![
+    let mut buttons3 = [
         Buttons::dim("+", 10),
         Buttons::dim("-", 11),
         Buttons::dim("×", 12),
         Buttons::dim("÷", 15),
     ];
-    let mut buttons4 = vec![
+    let mut buttons4 = [
         Buttons::dim("1", 1),
         Buttons::dim("2", 2),
         Buttons::dim("3", 3),
         //Buttons::dim("√", 17.0),
     ];
-    let mut buttons5 = vec![
+    let mut buttons5 = [
         Buttons::dim("4", 4),
         Buttons::dim("5", 5),
         Buttons::dim("6", 6),
     ];
-    let mut buttons6 = vec![
+    let mut buttons6 = [
         Buttons::dim("7", 7),
         Buttons::dim("8", 8),
         Buttons::dim("9", 9),
         Buttons::dim("bck", 18),
     ];
-    let mut buttons7 = vec![
+    let mut buttons7 = [
         Buttons::dim("0", 0),
         Buttons::dim("clr", 13),
         Buttons::dim(".", 16),
@@ -167,16 +194,15 @@ async fn main() {
                 if input_buffer.is_empty() && (button.value == 10 || button.value == 11) {
                     input_buffer.push(button.value);
                     display_buffer.push(button.text.to_string());
-                } else if !input_buffer.is_empty() {
-                    if input_buffer.last().unwrap() != &10
-                        && input_buffer.last().unwrap() != &11
-                        && input_buffer.last().unwrap() != &12
-                        && input_buffer.last().unwrap() != &15
-                    {
-                        input_buffer.push(button.value);
-                        display_buffer.push(button.text.to_string());
-                        decimal_present = false;
-                    }
+                } else if !input_buffer.is_empty()
+                    && input_buffer.last().unwrap() != &10
+                    && input_buffer.last().unwrap() != &11
+                    && input_buffer.last().unwrap() != &12
+                    && input_buffer.last().unwrap() != &15
+                {
+                    input_buffer.push(button.value);
+                    display_buffer.push(button.text.to_string());
+                    decimal_present = false;
                 }
                 //println!("Button {} clicked!", button.text);
             }
@@ -210,14 +236,12 @@ async fn main() {
                     //println!("Button {} clicked!", button.text);
                     input_buffer.push(button.value);
                     display_buffer.push(button.text.to_string());
-                } else {
-                    if !input_buffer.is_empty() {
-                        if input_buffer.last().unwrap() == &16 {
-                            decimal_present = false;
-                        }
-                        input_buffer.remove(input_buffer.len() - 1);
-                        display_buffer.remove(display_buffer.len() - 1);
+                } else if !input_buffer.is_empty() {
+                    if input_buffer.last().unwrap() == &16 {
+                        decimal_present = false;
                     }
+                    input_buffer.remove(input_buffer.len() - 1);
+                    display_buffer.remove(display_buffer.len() - 1);
                 }
             }
         }
@@ -266,7 +290,7 @@ async fn main() {
                 }
             }
         }
-        if clr == true {
+        if clr {
             input_buffer.clear();
             display_buffer.clear();
             //println!("Input Buffer Cleared");
@@ -274,7 +298,13 @@ async fn main() {
             decimal_present = false;
         }
 
-        display.update(border, border_h, usable_width, display_height, concatenate_strings(&display_buffer).await);
+        display.update(
+            border,
+            border_h,
+            usable_width,
+            display_height,
+            concatenate_strings(&display_buffer).await,
+        );
         display.draw();
 
         if is_quit_requested() {
