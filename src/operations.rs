@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 use rust_decimal::prelude::*;
 
-pub(crate) async fn operate(vec: &Vec<u8>) -> f64 {
+pub(crate) async fn operate(vec: &[u8]) -> f64 {
     let mut input: Decimal = 0_u8.into();
     let mut input_buf: Decimal = 0_u8.into();
     let mut operator: Option<u8> = None;
@@ -69,7 +69,7 @@ pub(crate) async fn operate(vec: &Vec<u8>) -> f64 {
 pub(crate) async fn concatenate_strings(vector: &Vec<String>) -> String {
     let mut result = String::new();
     for s in vector {
-        result += &s;
+        result += s;
     }
     result
 }
@@ -97,132 +97,28 @@ pub(crate) async fn key_check(value: u8) -> bool {
         _ => unreachable!(),
     }*/
     match value {
-        10 => {
-            if is_key_pressed(KeyCode::KpAdd) {
-                true
-            } else {
-                false
-            }
-        },
-        11 => {
-            if is_key_pressed(KeyCode::Minus) || is_key_pressed(KeyCode::KpSubtract) {
-                true
-            } else {
-                false
-            }
-        },
-        12 => {
-            if is_key_pressed(KeyCode::KpMultiply) {
-                true
-            } else {
-                false
-            }
-        },
-        15 => {
-            if is_key_pressed(KeyCode::KpDivide) || is_key_pressed(KeyCode::Slash) {
-                true
-            } else {
-                false
-            }
-        },
-        16 => {
-            if is_key_pressed(KeyCode::Period) || is_key_pressed(KeyCode::KpDecimal) {
-                true
-            } else {
-                false
-            }
-        },
+        10 => is_key_pressed(KeyCode::KpAdd),
+        11 => is_key_pressed(KeyCode::Minus) || is_key_pressed(KeyCode::KpSubtract),
+        12 => is_key_pressed(KeyCode::KpMultiply),
+        15 => is_key_pressed(KeyCode::KpDivide) || is_key_pressed(KeyCode::Slash),
+        16 => is_key_pressed(KeyCode::Period) || is_key_pressed(KeyCode::KpDecimal),
         14 => {
-            if is_key_pressed(KeyCode::Enter) || is_key_pressed(KeyCode::KpEnter) || is_key_pressed(KeyCode::KpEqual) {
-                true
-            } else {
-                false
-            }
-        },
-        13 => {
-            if is_key_pressed(KeyCode::Delete) {
-                true
-            } else {
-                false
-            }
-        },
-        18 => {
-            if is_key_pressed(KeyCode::Backspace) {
-                true
-            } else {
-                false
-            }
-        },
-        1 => {
-            if is_key_pressed(KeyCode::Key1) || is_key_pressed(KeyCode::Kp1) {
-                true
-            } else {
-                false
-            }
-        },
-        2 => {
-            if is_key_pressed(KeyCode::Key2) || is_key_pressed(KeyCode::Kp2) {
-                true
-            } else {
-                false
-            }
-        },
-        3 => {
-            if is_key_pressed(KeyCode::Key3) || is_key_pressed(KeyCode::Kp3) {
-                true
-            } else {
-                false
-            }
-        },
-        4 => {
-            if is_key_pressed(KeyCode::Key4) || is_key_pressed(KeyCode::Kp4) {
-                true
-            } else {
-                false
-            }
-        },
-        5 => {
-            if is_key_pressed(KeyCode::Key5) || is_key_pressed(KeyCode::Kp5) {
-                true
-            } else {
-                false
-            }
-        },
-        6 => {
-            if is_key_pressed(KeyCode::Key6) || is_key_pressed(KeyCode::Kp6) {
-                true
-            } else {
-                false
-            }
-        },
-        7 => {
-            if is_key_pressed(KeyCode::Key7) || is_key_pressed(KeyCode::Kp7) {
-                true
-            } else {
-                false
-            }
-        },
-        8 => {
-            if is_key_pressed(KeyCode::Key8) || is_key_pressed(KeyCode::Kp8) {
-                true
-            } else {
-                false
-            }
-        },
-        9 => {
-            if is_key_pressed(KeyCode::Key9) || is_key_pressed(KeyCode::Kp9) {
-                true
-            } else {
-                false
-            }
-        },
-        0 => {
-            if is_key_pressed(KeyCode::Key0) || is_key_pressed(KeyCode::Kp0) {
-                true
-            } else {
-                false
-            }
-        },
+            is_key_pressed(KeyCode::Enter)
+                || is_key_pressed(KeyCode::KpEnter)
+                || is_key_pressed(KeyCode::KpEqual)
+        }
+        13 => is_key_pressed(KeyCode::Delete),
+        18 => is_key_pressed(KeyCode::Backspace),
+        1 => is_key_pressed(KeyCode::Key1) || is_key_pressed(KeyCode::Kp1),
+        2 => is_key_pressed(KeyCode::Key2) || is_key_pressed(KeyCode::Kp2),
+        3 => is_key_pressed(KeyCode::Key3) || is_key_pressed(KeyCode::Kp3),
+        4 => is_key_pressed(KeyCode::Key4) || is_key_pressed(KeyCode::Kp4),
+        5 => is_key_pressed(KeyCode::Key5) || is_key_pressed(KeyCode::Kp5),
+        6 => is_key_pressed(KeyCode::Key6) || is_key_pressed(KeyCode::Kp6),
+        7 => is_key_pressed(KeyCode::Key7) || is_key_pressed(KeyCode::Kp7),
+        8 => is_key_pressed(KeyCode::Key8) || is_key_pressed(KeyCode::Kp8),
+        9 => is_key_pressed(KeyCode::Key9) || is_key_pressed(KeyCode::Kp9),
+        0 => is_key_pressed(KeyCode::Key0) || is_key_pressed(KeyCode::Kp0),
         _ => false,
     }
 }
@@ -233,9 +129,10 @@ pub(crate) fn f64_to_u8_vec(num: f64, input_buffer: &mut Vec<u8>, decimal: &mut 
     for char in string_num.chars() {
         match char {
             '0'..='9' => input_buffer.push(char as u8 - b'0'),
-            '.' => {input_buffer.push(16);
-                    *decimal = true;
-                },
+            '.' => {
+                input_buffer.push(16);
+                *decimal = true;
+            }
             '-' => input_buffer.push(11),
             '+' => input_buffer.push(10),
             _ => {} // Ignore other characters
