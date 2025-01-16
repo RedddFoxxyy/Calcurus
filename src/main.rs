@@ -6,30 +6,10 @@ use crate::operations::{concatenate_strings, key_check};
 
 mod operations;
 
-pub const BASE: Color = Color::new(
-    0.1176470588235294,
-    0.1176470588235294,
-    0.1803921568627451,
-    1.0,
-);
-pub const SURFACE1: Color = Color::new(
-    0.2705882352941176,
-    0.2784313725490196,
-    0.3529411764705882,
-    1.0,
-);
-pub const SURFACE1HOVERED: Color = Color::new(
-    0.49803921568627450980392156862745,
-    0.51764705882352941176470588235294,
-    0.61176470588235294117647058823529,
-    1.0,
-);
-pub const TEXT: Color = Color::new(
-    0.803921568627451,
-    0.8392156862745098,
-    0.9568627450980392,
-    1.0,
-);
+pub const BASE: Color = Color::new(0.1176, 0.1176, 0.1804, 1.0);
+pub const SURFACE1: Color = Color::new(0.2706, 0.2784, 0.3529, 1.0);
+pub const SURFACE1HOVERED: Color = Color::new(0.4980, 0.5176, 0.6118, 1.0);
+pub const TEXT: Color = Color::new(0.8039, 0.8392, 0.9569, 1.0);
 
 struct ScreenRect {
     rect: Rect,
@@ -252,10 +232,7 @@ async fn main() {
             if button.clicked() || key_check(button.value).await {
                 //println!("Button {} clicked!", button.text);
                 if button.value == 0 {
-                    if !input_buffer.is_empty() && input_buffer.last().unwrap() != &15 {
-                        input_buffer.push(button.value);
-                        display_buffer.push(button.text.to_string());
-                    } else if input_buffer.is_empty() {
+                    if input_buffer.is_empty() || input_buffer.last().unwrap() != &15 {
                         input_buffer.push(button.value);
                         display_buffer.push(button.text.to_string());
                     } else {
