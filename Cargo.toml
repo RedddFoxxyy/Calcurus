@@ -1,6 +1,6 @@
 [package]
 name = "Calcurus"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 macroquad = "0.4.13"
