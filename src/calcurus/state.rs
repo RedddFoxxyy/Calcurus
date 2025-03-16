@@ -129,7 +129,8 @@ impl Calcurus {
                             self.display_buffer.push(button_id_char);
                         }
                     }
-                    '+' | '-' | '*' | '/' => {
+                    // TODO: Add handling case for '√'
+                    '+' | '-' | '*' | '/' | '^' => {
                         if self.num_string_buffer.is_empty() {
                             if button_id_char == '+' || button_id_char == '-' {
                                 self.num_string_buffer.push(button_id_char);
@@ -214,7 +215,7 @@ impl Calcurus {
             current_row.push(button_element.clip(false).into());
 
             // Create a new row after every 3 buttons
-            if current_row.len() == 3 || index == self.keyboard.len() - 1 {
+            if current_row.len() == 4 || index == self.keyboard.len() - 1 {
                 button_rows.push(row(std::mem::take(&mut current_row)).spacing(3).into());
             }
         }

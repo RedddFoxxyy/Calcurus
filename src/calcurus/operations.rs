@@ -71,6 +71,11 @@ fn perform_calculation(
             }
             *buf1 /= *buf2
         }
+        "^" => {
+            let temp_dec = *buf1;
+            let output = temp_dec.powd(*buf2);
+            *buf1 = output;
+        }
         _ => unreachable!(),
     }
     true

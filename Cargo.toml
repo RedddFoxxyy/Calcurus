@@ -9,7 +9,7 @@ edition = "2024"
 # iced = { version = "0.13.1", features = ["image", "debug", "smol"] }
 iced = { version = "0.13.1", features = ["web-colors", "webgl"] }
 # iced = "0.13.1"
-rust_decimal = "1.36.0"
+rust_decimal = { version = "1.36.0", features = ["std", "maths"]}
 rust_decimal_macros = "1.36.0"
 #tokio = "1.44.1"
 futures = "0.3.31"
