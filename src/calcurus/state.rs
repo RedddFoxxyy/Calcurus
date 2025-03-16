@@ -8,7 +8,7 @@ use rust_decimal::Decimal;
 // use rust_decimal::*;
 // use rust_decimal_macros::dec;
 
-use crate::calcurus::{keys::*, operations::operate_on};
+use crate::calcurus::{keys::*, operations::operate};
 
 // #[derive(Clone)]
 // pub struct Operator {
@@ -68,6 +68,7 @@ pub(crate) struct Calcurus {
     pub num_buffer: NumObjectBuffer,
     pub display_buffer: String,
     pub num_string_buffer: String,
+    pub is_output_dec: bool,
     pub keyboard: Vec<String>,
 }
 
@@ -78,15 +79,14 @@ impl Default for Calcurus {
         Self {
             num_buffer: NumObjectBuffer::default(),
             display_buffer: String::new(),
+            // thought [initialisation]: Should this be initialised as true or not?
+            is_output_dec: true,
             num_string_buffer: String::new(),
             keyboard: keys,
         }
     }
 }
 
-// if self.num_buffer.current_object.is_none() {
-//     self.num_buffer.current_object = Some(NumObject::DecNumber(dec!(num)));
-// }
 impl Calcurus {
     pub(crate) fn update(&mut self, message: Message) {
         match message {
@@ -95,18 +95,39 @@ impl Calcurus {
                     self.num_buffer.clear();
                     self.display_buffer.clear();
                     self.num_string_buffer.clear();
+                    self.is_output_dec = true;
+                } else if button_id.as_str() == "Bck" {
+                    if self.is_output_dec {
+                        if self.num_string_buffer.is_empty() {
+                            self.num_buffer.pop();
+                            self.display_buffer.pop();
+                        } else {
+                            self.display_buffer.pop();
+                            self.num_string_buffer.pop();
+                        }
+                    } else {
+                        self.num_buffer.clear();
+                        self.display_buffer.clear();
+                        self.num_string_buffer.clear();
+                        self.is_output_dec = true;
+                    }
                 }
-                // else if button_id.as_str() == "Bck" {
-                //     self.num_buffer.pop();
-                //     self.display_buffer.pop();
-                //     self.num_string_buffer.clear();
-                // }
+                //
                 // TODO: Replace unwrap with unwrap_or_else.
                 let button_id_char = button_id.chars().next().unwrap();
                 match button_id_char {
                     '0'..='9' | '.' => {
-                        self.num_string_buffer.push(button_id_char);
-                        self.display_buffer.push(button_id_char);
+                        if !self.is_output_dec {
+                            self.num_buffer.clear();
+                            self.display_buffer.clear();
+                            self.num_string_buffer.clear();
+                            self.num_string_buffer.push(button_id_char);
+                            self.display_buffer.push(button_id_char);
+                            self.is_output_dec = true;
+                        } else {
+                            self.num_string_buffer.push(button_id_char);
+                            self.display_buffer.push(button_id_char);
+                        }
                     }
                     '+' | '-' | '*' | '/' => {
                         if self.num_string_buffer.is_empty() {
@@ -136,17 +157,27 @@ impl Calcurus {
                     '=' => {
                         // Parse and add the current number to num_buffer before operating
                         if !self.num_string_buffer.is_empty() {
-                            let new_num = self.num_string_buffer.parse::<Decimal>().unwrap();
+                            let final_num = self.num_string_buffer.parse::<Decimal>().unwrap();
                             self.num_string_buffer.clear();
 
-                            let num_object = NumObject::DecNumber(new_num);
+                            let num_object = NumObject::DecNumber(final_num);
                             if self.num_buffer.current_object.is_some() {
                                 let current_obj = self.num_buffer.current_object.take().unwrap();
                                 self.num_buffer.push(current_obj);
                             }
                             self.num_buffer.push(num_object);
                         }
-                        operate_on(&self.num_buffer, &mut self.display_buffer)
+                        operate(self);
+                        if self.num_buffer.buffer.len() == 1 {
+                            let current_num_object: NumObject = self.num_buffer.buffer[0].clone();
+
+                            if let NumObject::DecNumber(current_num) = current_num_object {
+                                let current_num_string = current_num.to_string();
+                                self.num_string_buffer.push_str(&current_num_string);
+                            }
+
+                            self.num_buffer.clear();
+                        }
                     }
 
                     _ => (), // Handle all other cases
