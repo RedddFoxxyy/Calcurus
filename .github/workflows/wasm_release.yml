@@ -1,0 +1,46 @@
+name: Build and Deploy to GitHub Pages
+
+permissions:
+  contents: write
+  pages: write
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Ensure full git history if needed for deployment
+
+      # Step 2: Set up Rust toolchain (ensure you have Rust installed)
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      # Step 3: Install the wasm32 target
+      - name: Add wasm32 target
+        run: rustup target add wasm32-unknown-unknown
+
+      # Step 4: Install Trunk (skip if already installed in your project environment)
+      - name: Install Trunk
+        run: cargo install trunk
+
+      # Step 5: Build your project in release mode
+      - name: Build with Trunk
+        run: trunk build --release --public-url /Calcurus/
+
+      # Step 6: Deploy the contents of the dist folder to the gh-pages branch
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
