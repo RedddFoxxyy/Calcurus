@@ -2,7 +2,7 @@
 name = "Calcurus"
 authors = ["Suyog Tandel(RedddFoxxyy)"]
 license-file = "LICENSE-CC"
-version = "0.1.0"
+version = "0.1.3"
 edition = "2024"
 
 [dependencies]
