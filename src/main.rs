@@ -21,6 +21,6 @@ fn main() -> iced::Result {
         Calcurus::view,
     )
     .window(settings)
-    .theme(|_| Theme::KanagawaDragon)
+    .theme(|_| Theme::Ferra)
     .run()
 }

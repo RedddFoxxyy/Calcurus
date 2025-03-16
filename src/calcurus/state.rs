@@ -158,8 +158,9 @@ impl Calcurus {
     pub(crate) fn view(&self) -> Element<Message> {
         // println!("Number of buttons in keyboard: {}", self.state.keyboard.len());
         let display: iced::widget::Text<iced::Theme> = text(&self.display_buffer)
-            .size(50)
+            .size(40)
             .width(iced::Length::Fill)
+            .height(iced::Length::FillPortion(1))
             .align_x(iced::alignment::Horizontal::Right);
 
         // Create a grid of buttons from the keyboard
@@ -173,25 +174,26 @@ impl Calcurus {
                 .height(iced::Length::Fill)
                 .align_x(alignment::Horizontal::Center)
                 .align_y(alignment::Vertical::Center)
-                .size(20);
+                .size(25);
             let button_element = button(key_label)
                 .on_press(Message::Click(key.clone()))
                 .width(iced::Length::Fill)
-                .height(iced::Length::Fill)
-                .padding(2);
+                .height(iced::Length::Fill);
 
-            current_row.push(button_element.into());
+            current_row.push(button_element.clip(false).into());
 
             // Create a new row after every 3 buttons
             if current_row.len() == 3 || index == self.keyboard.len() - 1 {
-                button_rows.push(row(std::mem::take(&mut current_row)).spacing(10).into());
+                button_rows.push(row(std::mem::take(&mut current_row)).spacing(3).into());
             }
         }
 
-        let keys_column: iced::widget::Column<_> = column(button_rows).spacing(10);
+        let keys_column: iced::widget::Column<_> = column(button_rows)
+            .spacing(3)
+            .height(iced::Length::FillPortion(4));
         let content: iced::widget::Column<_> = column![display, keys_column]
-            .padding(10)
-            .spacing(20)
+            .padding(5)
+            .spacing(5)
             .width(iced::Length::Fill)
             .align_x(iced::alignment::Horizontal::Center);
         iced::widget::center(content).into()
