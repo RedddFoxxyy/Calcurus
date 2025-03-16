@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Calcurus-wasm</title>
+        <base href="/Calcurus/" />
+    <link rel="modulepreload" href="/Calcurus/Calcurus-bf114f89d763c552.js" crossorigin="anonymous" integrity="sha384-d5GVQQpV9bg087ekP8o6dILP8Fkkemp4Xzud5oOAqGEC5wYp6pVw1k9SfzS9Xr10"><link rel="preload" href="/Calcurus/Calcurus-bf114f89d763c552_bg.wasm" crossorigin="anonymous" integrity="sha384-Ctk9uY/qWZ/Ft4Hms8lL+uoUwiEoRrPNkkAQeGruWNjJ6Oa8BcJJyumkU7OWUcca" as="fetch" type="application/wasm"></head>
+    <body style="margin: 0; padding: 0; width: 100%; height: 100svh">
+        
+<script type="module">
+import init, * as bindings from '/Calcurus/Calcurus-bf114f89d763c552.js';
+const wasm = await init({ module_or_path: '/Calcurus/Calcurus-bf114f89d763c552_bg.wasm' });
+
+
+window.wasmBindings = bindings;
+
+
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+</script>
+    </body>
+</html>
