@@ -1,11 +1,14 @@
-# Calcurus: A Rust Calculator with GUI
+<h1 align="center"">Calcurus!</h1>
 
-Calcurus is a simple calculator written in Rust using the macroquad framework. It features a graphical user interface (GUI) for a more user-friendly experience.
+### [Calcurus](https://redddfoxxyy.github.io/Calcurus/) is a simple calculator written in Rust using the [iced](https://github.com/iced-rs/iced) framework.
+
+It can run on any platform/os that is supported by the rust compiler, including wasm!
 
 ## Features
 
 - Basic arithmetic operations (addition, subtraction, multiplication, division) with integers and decimals
-- Graphical user interface (GUI)
+- Graphical user interface (GUI) using iced framework.
+- Can also be compiled to web assembly using trunk! You can test Calcurus right now without installing it on this website: https://redddfoxxyy.github.io/Calcurus/
 
 ## Installation
 
@@ -28,25 +31,10 @@ Calcurus is a simple calculator written in Rust using the macroquad framework. I
    ./target/release/calcurus
 
 ## Contributing:
-   - Contributions are welcome! If you’d like to contribute to Calcurus, follow these steps:
-   1. Fork the repository.
-   2. Create a new branch:
-
-      ```bash
-         git checkout -b feature/my-feature.
-   3. Make your changes and commit them:
-
-      ```bash
-         git commit -m "Add feature XYZ".
-   4. Push to your forked repository:
-
-      ```bash
-         git push origin feature/my-feature.
-   5. Open a pull request on GitHub.
+   - Contributions are welcome! If you’d like to contribute to Calcurus, open a PR with changes, features of fixes and I will review and merge them.
 
 ## License:
 
-```
 Calcurus is licensed under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3 and “Commons Clause” License Condition v1.0.
 See the LICENSE files for details.
-```
+
