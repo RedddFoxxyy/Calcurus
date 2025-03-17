@@ -130,7 +130,7 @@ impl Calcurus {
                         }
                     }
                     // TODO: Add handling case for '√'
-                    '+' | '-' | '*' | '/' | '^' => {
+                    '+' | '-' | '×' | '÷' | '^' => {
                         if self.num_string_buffer.is_empty() {
                             if button_id_char == '+' || button_id_char == '-' {
                                 self.num_string_buffer.push(button_id_char);

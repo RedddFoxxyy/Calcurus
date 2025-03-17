@@ -62,8 +62,8 @@ fn perform_calculation(
     match operator_value.as_str() {
         "+" => *buf1 += *buf2,
         "-" => *buf1 -= *buf2,
-        "*" => *buf1 *= *buf2,
-        "/" => {
+        "×" => *buf1 *= *buf2,
+        "÷" => {
             if *buf2 == dec!(0) {
                 display_buffer.clear();
                 display_buffer.push_str("Cannot Divide By 0!");
@@ -73,8 +73,13 @@ fn perform_calculation(
         }
         "^" => {
             let temp_dec = *buf1;
-            let output = temp_dec.powd(*buf2);
-            *buf1 = output;
+            let output_check = temp_dec.checked_powd(*buf2);
+            if output_check.is_none() {
+                display_buffer.clear();
+                display_buffer.push_str("Value out of bounds!");
+                return false;
+            }
+            *buf1 = output_check.unwrap();
         }
         _ => unreachable!(),
     }
