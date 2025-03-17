@@ -210,9 +210,10 @@ impl Calcurus {
             let button_element = button(key_label)
                 .on_press(Message::Click(key.clone()))
                 .width(iced::Length::Fill)
-                .height(iced::Length::Fill);
+                .height(iced::Length::Fill)
+                .clip(false);
 
-            current_row.push(button_element.clip(false).into());
+            current_row.push(button_element.into());
 
             // Create a new row after every 3 buttons
             if current_row.len() == 4 || index == self.keyboard.len() - 1 {
