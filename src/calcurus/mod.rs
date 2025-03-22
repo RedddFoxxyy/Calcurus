@@ -1,3 +1,4 @@
+mod defines;
 pub mod keys;
-pub mod operations;
+pub mod logic;
 pub mod state;
