@@ -67,6 +67,7 @@ impl Calcurus {
 
 			let button = button(key_label)
 				.on_press(Message::Click(key.clone()))
+
 				.width(iced::Length::Fill)
 				.height(iced::Length::Fill);
 
