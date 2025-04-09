@@ -1,5 +1,5 @@
 use calcurus::state::*;
-use iced::{window, Size, Theme};
+use iced::{Size, Theme, window};
 
 mod calcurus;
 
