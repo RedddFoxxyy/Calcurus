@@ -13,15 +13,22 @@ pub(crate) fn handle_key_click(state: &mut Calcurus, button_id: String) {
 
 		// TODO: Add handling case for '√'
 		'+' | '-' | '×' | '÷' | '^' => {
-			if state.num_string_buffer.is_empty() {
+			// If the num_string_buffer is empty, only allow input of + or - to give
+			// sign to the number.
+			if state.current_input_buffer.is_empty() {
 				if button_id_char == '+' || button_id_char == '-' {
-					state.num_string_buffer.push(button_id_char);
-					state.display_buffer.push(button_id_char);
+					state.push_current_input(&button_id_char);
 				}
 				return;
 			}
-			let new_num = state.num_string_buffer.parse::<Decimal>().unwrap();
-			state.num_string_buffer.clear();
+			// Get the current number ( as Decimal ) present in the num string buffer before clearing the
+			// num_string_buffer for the next number after the operator.
+			let new_num: Decimal = state.current_input_buffer.parse().unwrap();
+			// Clear the num_string_buffer for the next number.
+			state.current_input_buffer.clear();
+			// Depending upon the presence of current_object, make the current number as the current object if current
+			// object is none else push the current object to num_buffer, push the operator to num buffer and then make
+			// the new_num as the current object
 			if state.num_buffer.current_object.is_none() {
 				state.num_buffer.current_object = Some(NumObject::DecNumber(new_num));
 				let operator = NumObject::Operator(button_id);
@@ -38,9 +45,9 @@ pub(crate) fn handle_key_click(state: &mut Calcurus, button_id: String) {
 		}
 		'=' => {
 			// Parse and add the current number to num_buffer before operating
-			if !state.num_string_buffer.is_empty() {
-				let final_num = state.num_string_buffer.parse::<Decimal>().unwrap();
-				state.num_string_buffer.clear();
+			if !state.current_input_buffer.is_empty() {
+				let final_num = state.current_input_buffer.parse::<Decimal>().unwrap();
+				state.current_input_buffer.clear();
 
 				let num_object = NumObject::DecNumber(final_num);
 				if state.num_buffer.current_object.is_some() {
@@ -55,7 +62,7 @@ pub(crate) fn handle_key_click(state: &mut Calcurus, button_id: String) {
 
 				if let NumObject::DecNumber(current_num) = current_num_object {
 					let current_num_string = current_num.to_string();
-					state.num_string_buffer.push_str(&current_num_string);
+					state.current_input_buffer.push_str(&current_num_string);
 				}
 
 				state.num_buffer.clear();
@@ -69,21 +76,21 @@ fn handle_delete_keys(state: &mut Calcurus, button_id: &str) {
 	if button_id == "Clr" {
 		state.num_buffer.clear();
 		state.display_buffer.clear();
-		state.num_string_buffer.clear();
+		state.current_input_buffer.clear();
 		state.is_output_dec = true;
 	} else if button_id == "Bck" {
 		if state.is_output_dec {
-			if state.num_string_buffer.is_empty() {
+			if state.current_input_buffer.is_empty() {
 				state.num_buffer.pop();
 				state.display_buffer.pop();
 			} else {
 				state.display_buffer.pop();
-				state.num_string_buffer.pop();
+				state.current_input_buffer.pop();
 			}
 		} else {
 			state.num_buffer.clear();
 			state.display_buffer.clear();
-			state.num_string_buffer.clear();
+			state.current_input_buffer.clear();
 			state.is_output_dec = true;
 		}
 	}
@@ -93,13 +100,11 @@ fn handle_num_keys(state: &mut Calcurus, button_id_char: char) {
 	if !state.is_output_dec {
 		state.num_buffer.clear();
 		state.display_buffer.clear();
-		state.num_string_buffer.clear();
-		state.num_string_buffer.push(button_id_char);
-		state.display_buffer.push(button_id_char);
+		state.current_input_buffer.clear();
+		state.push_current_input(&button_id_char);
 		state.is_output_dec = true;
 	} else {
-		state.num_string_buffer.push(button_id_char);
-		state.display_buffer.push(button_id_char);
+		state.push_current_input(&button_id_char);
 	}
 }
 

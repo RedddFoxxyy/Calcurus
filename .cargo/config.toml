@@ -2,4 +2,4 @@
 # Uncomment to set ICED Renderer backend to software renderer tiny-skia.
 # ICED_BACKEND = "tiny-skia"
 # Using vulkan as it uses less ram comapred to opengl or dx11.
-WGPU_BACKEND = "vulkan"
+# WGPU_BACKEND = "vulkan"
