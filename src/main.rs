@@ -18,10 +18,11 @@ fn main() -> iced::Result {
 
 	iced::application("Calcurus - Iced", Calcurus::update, Calcurus::view)
 		.window(settings)
-		.theme(|_| Theme::GruvboxDark)
+		.theme(|_| Theme::KanagawaDragon)
 		.run()
 }
 
+#[allow(unused)]
 fn set_gpu_backend() {
 	if cfg!(target_os = "windows") {
 		unsafe {

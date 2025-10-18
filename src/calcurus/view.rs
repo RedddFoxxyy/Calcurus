@@ -15,7 +15,7 @@ use iced::{
 };
 
 impl Calcurus {
-	pub(crate) fn view(&self) -> Element<Message> {
+	pub(crate) fn view(&self) -> Element<'_, Message> {
 		// println!("Number of buttons in keyboard: {}", self.state.keyboard.len());
 		let display: iced::widget::Text<Theme> = text(&self.display_buffer)
 			.size(30)

@@ -2,21 +2,21 @@
 name = "Calcurus"
 authors = ["Suyog Tandel(RedddFoxxyy)"]
 license-file = "LICENSE-CC"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 
 [dependencies]
 # iced = { version = "0.13.1", features = ["image", "debug", "smol"] }
 iced = { version = "0.13.1", features = ["web-colors", "webgl", "advanced"] }
-rust_decimal = { version = "1.37.1", features = ["std", "maths"]}
-rust_decimal_macros = "1.37.1"
+rust_decimal = { version = "1.39.0", features = ["std", "maths"]}
+rust_decimal_macros = "1.39.0"
 
 [profile.release]
 codegen-units = 1 # Allows LLVM to perform better optimization.
-# lto = true        # Enables link-time-optimizations, however not stable.
+lto = true        # Enables link-time-optimizations, however not stable.
 opt-level = 3     # Prioritizes speed. Use `z` if you prefer small binary size.
-# panic = "abort" # Higher performance by disabling panic handlers, no need to disable this.
-strip = true # Ensures debug symbols are removed.
+panic = "abort"   # Higher performance by disabling panic handlers, no need to disable this.
+strip = true      # Ensures debug symbols are removed.
 
 [profile.dev]
 codegen-units = 256
