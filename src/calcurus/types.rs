@@ -1,43 +1,24 @@
 use rust_decimal::Decimal;
 
+/// An Arithmetic Unit type, is an enum that can have two types either a DecNumber or an Operator.
+/// Where an Operator is any arithmetic operator such as '+' and, a Number is of type 'Decimal' from
+/// the 'rust_decimal' crate.
 #[derive(Clone)]
-pub enum NumObject {
-	DecNumber(Decimal),
+pub enum ArithmeticUnit {
+	Number(Decimal),
 	Operator(String),
 }
 
-pub struct NumObjectBuffer {
-	pub len: usize,
-	pub buffer: Vec<NumObject>,
-	pub current_object: Option<NumObject>,
+/// A Buffer(Vector) of ArithmeticUnits, and the current selected/entered unit.
+pub struct ArithmeticUnitBuffer {
+	pub buffer: Vec<ArithmeticUnit>,
+	pub current_unit: Option<ArithmeticUnit>,
 }
-impl NumObjectBuffer {
+impl ArithmeticUnitBuffer {
 	pub fn default() -> Self {
-		NumObjectBuffer {
-			len: 0,
+		ArithmeticUnitBuffer {
 			buffer: Vec::new(),
-			current_object: None,
+			current_unit: None,
 		}
-	}
-
-	pub fn push(&mut self, num_object: NumObject) {
-		self.buffer.push(num_object);
-		self.len += 1;
-	}
-
-	#[allow(dead_code)]
-	pub fn pop(&mut self) -> Option<NumObject> {
-		if self.len > 0 {
-			self.len -= 1;
-			self.buffer.pop()
-		} else {
-			None
-		}
-	}
-
-	#[allow(dead_code)]
-	pub fn clear(&mut self) {
-		self.len = 0;
-		self.buffer.clear();
 	}
 }

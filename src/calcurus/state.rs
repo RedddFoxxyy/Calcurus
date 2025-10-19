@@ -1,6 +1,6 @@
 #[allow(unused_imports)]
 use crate::calcurus::{
-	types::{NumObject, NumObjectBuffer},
+	types::{ArithmeticUnit, ArithmeticUnitBuffer},
 	utils::generate_key_layout,
 	logic::handle_key_click,
 };
@@ -13,7 +13,7 @@ pub(crate) enum Message {
 pub(crate) struct Calcurus {
 	pub debug_mode: bool,
 	/// Buffer to store NumObjects to Operate on.
-	pub num_buffer: NumObjectBuffer,
+	pub unit_buf: ArithmeticUnitBuffer,
 	/// Buffer to store the string that will be displayed on the calculator.
 	pub display_buffer: String,
 	/// Temporary buffer to store the number that is being typed.
@@ -30,7 +30,7 @@ impl Default for Calcurus {
 
 		Self {
 			debug_mode: false,
-			num_buffer: NumObjectBuffer::default(),
+			unit_buf: ArithmeticUnitBuffer::default(),
 			display_buffer: String::new(),
 			// thought [initialization]: Should this be initialized as true or not?
 			is_output_dec: true,

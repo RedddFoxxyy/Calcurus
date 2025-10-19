@@ -5,7 +5,7 @@ use crate::{
 	calcurus::{
 		utils::generate_key_layout,
 		logic::handle_key_click,
-		types::{NumObject, NumObjectBuffer},
+		types::{ArithmeticUnit, ArithmeticUnitBuffer},
 	}, Calcurus,
 	Message,
 };

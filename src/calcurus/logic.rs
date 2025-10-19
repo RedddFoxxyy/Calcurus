@@ -1,3 +1,12 @@
+//! The Basic Working and logic of operation of this calculator is that, there is an empty buffer where we can push and pop Arithmetic Units ( see types.rs ).
+//! When we type any number/operator on the calculator, these values are pushed to this buffer and during this various edge cases are also checked.
+//! Once the user clicks the 'equal to' key, instead of pushing this to buffer, a function is called to operate on this buffer, and this function operates
+//! on each unit one by one.
+//!
+//! To handle a number with multiple digits, a number is only pushed to the buffer once user clicks on an operator or when equal to sign is clicked.
+//! However, this does not affect the handling of visual buffer ( the display of calculator ). The clicked key character gets pushed to visual buffer immediately.
+
+// TODO: First handle inputs directly into the buffer, and then do the operation on all the units one by one.
 use rust_decimal::prelude::*;
 use rust_decimal_macros::*;
 
@@ -29,17 +38,17 @@ pub(crate) fn handle_key_click(state: &mut Calcurus, button_id: String) {
 			// Depending upon the presence of current_object, make the current number as the current object if current
 			// object is none else push the current object to num_buffer, push the operator to num buffer and then make
 			// the new_num as the current object
-			if state.num_buffer.current_object.is_none() {
-				state.num_buffer.current_object = Some(NumObject::DecNumber(new_num));
-				let operator = NumObject::Operator(button_id);
-				state.num_buffer.push(operator);
+			if state.unit_buf.current_unit.is_none() {
+				state.unit_buf.current_unit = Some(ArithmeticUnit::Number(new_num));
+				let operator = ArithmeticUnit::Operator(button_id);
+				state.unit_buf.buffer.push(operator);
 				state.display_buffer.push(button_id_char);
 			} else {
-				let current_num_object = state.num_buffer.current_object.clone().unwrap();
-				state.num_buffer.current_object = None;
-				let operator = NumObject::Operator(button_id);
-				state.num_buffer.push(current_num_object);
-				state.num_buffer.push(operator);
+				let current_num_object = state.unit_buf.current_unit.clone().unwrap();
+				state.unit_buf.current_unit = None;
+				let operator = ArithmeticUnit::Operator(button_id);
+				state.unit_buf.buffer.push(current_num_object);
+				state.unit_buf.buffer.push(operator);
 				state.display_buffer.push(button_id_char);
 			}
 		}
@@ -49,46 +58,46 @@ pub(crate) fn handle_key_click(state: &mut Calcurus, button_id: String) {
 				let final_num = state.current_input_buffer.parse::<Decimal>().unwrap();
 				state.current_input_buffer.clear();
 
-				let num_object = NumObject::DecNumber(final_num);
-				if state.num_buffer.current_object.is_some() {
-					let current_obj = state.num_buffer.current_object.take().unwrap();
-					state.num_buffer.push(current_obj);
+				let num_object = ArithmeticUnit::Number(final_num);
+				if state.unit_buf.current_unit.is_some() {
+					let current_obj = state.unit_buf.current_unit.take().unwrap();
+					state.unit_buf.buffer.push(current_obj);
 				}
-				state.num_buffer.push(num_object);
+				state.unit_buf.buffer.push(num_object);
 			}
 			operate_on_buffer(state);
-			if state.num_buffer.buffer.len() == 1 {
-				let current_num_object: NumObject = state.num_buffer.buffer[0].clone();
+			if state.unit_buf.buffer.len() == 1 {
+				let current_num_object: ArithmeticUnit = state.unit_buf.buffer[0].clone();
 
-				if let NumObject::DecNumber(current_num) = current_num_object {
+				if let ArithmeticUnit::Number(current_num) = current_num_object {
 					let current_num_string = current_num.to_string();
 					state.current_input_buffer.push_str(&current_num_string);
 				}
 
-				state.num_buffer.clear();
+				state.unit_buf.buffer.clear();
 			}
 		}
 
-		_ => (), // Handle all other cases
+		_ => (),
 	}
 }
 fn handle_delete_keys(state: &mut Calcurus, button_id: &str) {
 	if button_id == "Clr" {
-		state.num_buffer.clear();
+		state.unit_buf.buffer.clear();
 		state.display_buffer.clear();
 		state.current_input_buffer.clear();
 		state.is_output_dec = true;
 	} else if button_id == "Bck" {
 		if state.is_output_dec {
 			if state.current_input_buffer.is_empty() {
-				state.num_buffer.pop();
+				state.unit_buf.buffer.pop();
 				state.display_buffer.pop();
 			} else {
 				state.display_buffer.pop();
 				state.current_input_buffer.pop();
 			}
 		} else {
-			state.num_buffer.clear();
+			state.unit_buf.buffer.clear();
 			state.display_buffer.clear();
 			state.current_input_buffer.clear();
 			state.is_output_dec = true;
@@ -98,7 +107,7 @@ fn handle_delete_keys(state: &mut Calcurus, button_id: &str) {
 
 fn handle_num_keys(state: &mut Calcurus, button_id_char: char) {
 	if !state.is_output_dec {
-		state.num_buffer.clear();
+		state.unit_buf.buffer.clear();
 		state.display_buffer.clear();
 		state.current_input_buffer.clear();
 		state.push_current_input(&button_id_char);
@@ -113,11 +122,11 @@ fn operate_on_buffer(app_state: &mut Calcurus) {
 	let mut buf1: Decimal = dec!(0);
 	let mut buf2: Decimal;
 
-	let mut current_operator: NumObject = NumObject::Operator("+".to_string());
-	let num_object_iterator = app_state.num_buffer.buffer.iter();
+	let mut current_operator: ArithmeticUnit = ArithmeticUnit::Operator("+".to_string());
+	let num_object_iterator = app_state.unit_buf.buffer.iter();
 
 	for num_object in num_object_iterator {
-		if let &NumObject::DecNumber(num) = num_object {
+		if let &ArithmeticUnit::Number(num) = num_object {
 			if first_num {
 				buf1 = num;
 				first_num = false;
@@ -138,10 +147,10 @@ fn operate_on_buffer(app_state: &mut Calcurus) {
 	let buf1_string = buf1.to_string();
 	if app_state.is_output_dec {
 		let buf1_dec = buf1_string.parse::<Decimal>().unwrap();
-		let buf1_num_object = NumObject::DecNumber(buf1_dec);
+		let buf1_num_object = ArithmeticUnit::Number(buf1_dec);
 
-		app_state.num_buffer.clear();
-		app_state.num_buffer.push(buf1_num_object);
+		app_state.unit_buf.buffer.clear();
+		app_state.unit_buf.buffer.push(buf1_num_object);
 		// num_object_buffer.current_object = Some(buf1_num_object);
 
 		app_state.display_buffer.clear();
@@ -152,11 +161,11 @@ fn operate_on_buffer(app_state: &mut Calcurus) {
 fn perform_calculation(
 	buf1: &mut Decimal,
 	buf2: &mut Decimal,
-	operator: &mut NumObject,
+	operator: &mut ArithmeticUnit,
 	display_buffer: &mut String,
 ) -> bool {
 	let operator_value = match operator {
-		NumObject::Operator(operator_value_inner) => operator_value_inner.clone(),
+		ArithmeticUnit::Operator(operator_value_inner) => operator_value_inner.clone(),
 		_ => unreachable!(),
 	};
 
