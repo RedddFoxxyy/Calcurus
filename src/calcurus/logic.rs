@@ -1,7 +1,7 @@
 use rust_decimal::prelude::*;
 use rust_decimal_macros::*;
 
-use crate::calcurus::{defines::*, state::*};
+use crate::calcurus::{types::*, state::*};
 
 pub(crate) fn handle_key_click(state: &mut Calcurus, button_id: String) {
 	handle_delete_keys(state, &button_id);

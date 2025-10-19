@@ -13,8 +13,8 @@ rust_decimal_macros = "1.39.0"
 
 [profile.release]
 codegen-units = 1 # Allows LLVM to perform better optimization.
-lto = true        # Enables link-time-optimizations, however not stable.
-opt-level = 3     # Prioritizes speed. Use `z` if you prefer small binary size.
+lto = true        # Enables link-time-optimizations, however, not stable.
+opt-level = 3     # Prioritizes speed. Use `z` if you prefer a small binary size.
 panic = "abort"   # Higher performance by disabling panic handlers, no need to disable this.
 strip = true      # Ensures debug symbols are removed.
 

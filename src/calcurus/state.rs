@@ -1,7 +1,7 @@
 #[allow(unused_imports)]
 use crate::calcurus::{
-	defines::{NumObject, NumObjectBuffer},
-	keys::*,
+	types::{NumObject, NumObjectBuffer},
+	utils::generate_key_layout,
 	logic::handle_key_click,
 };
 
@@ -21,18 +21,18 @@ pub(crate) struct Calcurus {
 	/// Used to track if the output of last operation was decimal value or not.
 	pub is_output_dec: bool,
 	/// Stores the Keyboard Keys.
-	pub keyboard: Vec<String>,
+	pub keyboard: Vec<&'static str>,
 }
 
 impl Default for Calcurus {
 	fn default() -> Self {
-		let keys: Vec<String> = generate_key_layout();
+		let keys: Vec<&'static str> = generate_key_layout();
 
 		Self {
 			debug_mode: false,
 			num_buffer: NumObjectBuffer::default(),
 			display_buffer: String::new(),
-			// thought [initialisation]: Should this be initialised as true or not?
+			// thought [initialization]: Should this be initialized as true or not?
 			is_output_dec: true,
 			current_input_buffer: String::new(),
 			keyboard: keys,

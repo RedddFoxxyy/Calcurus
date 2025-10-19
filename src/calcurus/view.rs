@@ -2,16 +2,16 @@
 
 #[allow(unused_imports)]
 use crate::{
-	Calcurus, Message,
 	calcurus::{
-		defines::{NumObject, NumObjectBuffer},
-		keys::*,
+		utils::generate_key_layout,
 		logic::handle_key_click,
-	},
+		types::{NumObject, NumObjectBuffer},
+	}, Calcurus,
+	Message,
 };
 use iced::{
-	Element, Theme, alignment,
-	widget::{button, center, column, row, text},
+	alignment, widget::{button, center, column, row, text}, Element,
+	Theme,
 };
 
 impl Calcurus {
@@ -23,37 +23,7 @@ impl Calcurus {
 			.height(iced::Length::FillPortion(1))
 			.align_x(alignment::Horizontal::Right);
 
-		// Create a grid of buttons from the keyboard
-		let mut button_rows: Vec<Element<Message>> = Vec::new();
-		let mut current_row: Vec<Element<Message>> = Vec::new();
-
-		// Iterate through all buttons in the keyboard
-		for (index, key) in self.keyboard.iter().enumerate() {
-			let key_label = text(key)
-				.width(iced::Length::Fill)
-				.height(iced::Length::Fill)
-				.align_x(alignment::Horizontal::Center)
-				.align_y(alignment::Vertical::Center)
-				.color(iced::Color::new(0.9490196, 0.8980392, 0.7372549, 1.0))
-				.size(25);
-
-			let button = button(key_label)
-				.on_press(Message::Click(key.clone()))
-				.width(iced::Length::Fill)
-				.height(iced::Length::Fill);
-
-			let mut button_element: Element<Message> = button.into();
-			if self.debug_mode {
-				button_element = button_element.explain(iced::Color::WHITE);
-			}
-
-			current_row.push(button_element);
-
-			// Create a new row after every 4 buttons
-			if current_row.len() == 4 || index == self.keyboard.len() - 1 {
-				button_rows.push(row(std::mem::take(&mut current_row)).spacing(3).into());
-			}
-		}
+		let button_rows = create_default_rows(self);
 
 		let keys_column: iced::widget::Column<_> = column(button_rows)
 			.spacing(3)
@@ -71,4 +41,42 @@ impl Calcurus {
 		}
 		main_content
 	}
+
+
 }
+
+pub fn create_default_rows(calcurus: &'_ Calcurus) -> Vec<Element<'_, Message>> {
+	let mut button_rows: Vec<Element<Message>> = Vec::new();
+	let mut current_row: Vec<Element<Message>> = Vec::new();
+
+	// Iterate through all buttons in the keyboard
+	for (index, key) in calcurus.keyboard.iter().enumerate() {
+		let key_label = text(*key)
+			.width(iced::Length::Fill)
+			.height(iced::Length::Fill)
+			.align_x(alignment::Horizontal::Center)
+			.align_y(alignment::Vertical::Center)
+			.color(iced::Color::new(0.9490196, 0.8980392, 0.7372549, 1.0))
+			.size(25);
+
+		let button = button(key_label)
+			.on_press(Message::Click(key.to_string()))
+			.width(iced::Length::Fill)
+			.height(iced::Length::Fill);
+
+		let mut button_element: Element<Message> = button.into();
+		if calcurus.debug_mode {
+			button_element = button_element.explain(iced::Color::WHITE);
+		}
+
+		current_row.push(button_element);
+
+		// Create a new row after every 4 buttons
+		if current_row.len() == 4 || index == calcurus.keyboard.len() - 1 {
+			button_rows.push(row(std::mem::take(&mut current_row)).spacing(3).into());
+		}
+	}
+	button_rows
+}
+
+

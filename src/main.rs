@@ -1,8 +1,11 @@
 use calcurus::state::*;
-use iced::{Size, Theme, window};
-use std::env;
-
+use iced::{window, Font, Size, Theme};
 mod calcurus;
+
+
+static JETBRAINS_MONO_BYTES: &[u8] = include_bytes!("./resources/fonts/JetBrainsMonoNerdFont-Regular.ttf");
+pub const JETBRAINS_MONO_NERD_FONT: Font = Font::with_name("JetBrainsMono Nerd Font");
+
 
 const MIN_WINDOW_SIZE: Size = Size {
 	width: 280.0,
@@ -10,38 +13,18 @@ const MIN_WINDOW_SIZE: Size = Size {
 };
 
 fn main() -> iced::Result {
-	let settings = window::Settings {
+	let window_settings = window::Settings {
 		size: MIN_WINDOW_SIZE,
 		min_size: Some(MIN_WINDOW_SIZE),
 		..window::Settings::default()
 	};
 
 	iced::application("Calcurus - Iced", Calcurus::update, Calcurus::view)
-		.window(settings)
+		.font(JETBRAINS_MONO_BYTES)
+		.default_font(JETBRAINS_MONO_NERD_FONT)
+		.window(window_settings)
 		.theme(|_| Theme::KanagawaDragon)
 		.run()
 }
 
-#[allow(unused)]
-fn set_gpu_backend() {
-	if cfg!(target_os = "windows") {
-		unsafe {
-			env::set_var("WGPU_BACKEND", "dx12");
-		}
-	} else if cfg!(target_os = "linux") {
-		unsafe {
-			env::set_var("WGPU_BACKEND", "vulkan");
-		}
-	} else if cfg!(target_os = "macos") {
-		unsafe {
-			env::set_var("WGPU_BACKEND", "metal");
-		}
-	} else {
-		// Set a default backend or handle unsupported OS
-		unsafe {
-			env::set_var("ICED_BACKEND", "tiny-skia");
-			// env::set_var("WGPU_BACKEND", "vulkan"); // Default to vulkan
-		}
-		eprintln!("Warning: Operating system not specifically handled. Using Software Rendering.");
-	}
-}
+
