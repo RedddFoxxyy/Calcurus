@@ -8,12 +8,14 @@
 
 // TODO: First handle inputs directly into the buffer, and then do the operation on all the units one by one.
 
+mod parser;
+
 use std::env;
 use iced::{alignment, window, Element, Font, Size, Theme};
 use iced::widget::{button, center, column, row, text};
 use rust_decimal::{Decimal, MathematicalOps};
 use rust_decimal_macros::dec;
-
+use crate::parser::calculate;
 
 static JETBRAINS_MONO_BYTES: &[u8] = include_bytes!("./resources/fonts/JetBrainsMonoNerdFont-Regular.ttf");
 pub const JETBRAINS_MONO_NERD_FONT: Font = Font::with_name("JetBrainsMono Nerd Font");
@@ -21,7 +23,7 @@ pub const JETBRAINS_MONO_NERD_FONT: Font = Font::with_name("JetBrainsMono Nerd F
 /// An Arithmetic Unit type, is an enum that can have two types either a DecNumber or an Operator.
 /// Where an Operator is any arithmetic operator such as '+' and, a Number is of type 'Decimal' from
 /// the 'rust_decimal' crate.
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ArithmeticUnit {
 	Number(Decimal),
 	Operator(String),
@@ -279,10 +281,10 @@ fn operate_on_buffer(app_state: &mut Calcurus) {
 	let mut first_num: bool = true;
 	let mut buf1: Decimal = dec!(0);
 	let mut buf2: Decimal;
-
+	
 	let mut current_operator: ArithmeticUnit = ArithmeticUnit::Operator("+".to_string());
 	let num_object_iterator = app_state.unit_buf.buffer.iter();
-
+	
 	for num_object in num_object_iterator {
 		if let &ArithmeticUnit::Number(num) = num_object {
 			if first_num {
@@ -301,19 +303,25 @@ fn operate_on_buffer(app_state: &mut Calcurus) {
 			current_operator = num_object.clone();
 		}
 	}
-
+	
 	let buf1_string = buf1.to_string();
 	if app_state.is_output_dec {
 		let buf1_dec = buf1_string.parse::<Decimal>().unwrap();
 		let buf1_num_object = ArithmeticUnit::Number(buf1_dec);
-
+	
 		app_state.unit_buf.buffer.clear();
 		app_state.unit_buf.buffer.push(buf1_num_object);
 		// num_object_buffer.current_object = Some(buf1_num_object);
-
+	
 		app_state.display_buffer.clear();
 		app_state.display_buffer.push_str(&buf1_string);
 	}
+	
+	// let result = calculate(app_state.display_buffer.clone());
+	// app_state.display_buffer.clear();
+	// app_state.current_input_buffer.clear();
+	// app_state.display_buffer.push_str(result.to_string().as_str());
+	// app_state.unit_buf.buffer.push(ArithmeticUnit::Number(result));
 }
 
 fn perform_calculation(
