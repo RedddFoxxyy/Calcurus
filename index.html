@@ -1,16 +1,16 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" content="text/html; charset=utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Calcurus-wasm</title>
-        <base href="/Calcurus/" />
-    <link rel="modulepreload" href="/Calcurus/Calcurus-a72dea58349402fb.js" crossorigin="anonymous" integrity="sha384-glwsk17+DLrdN8PlpNgZnHa0HvHC34eZhHTxEWXvoP8QmIMahQNjtLlZ/+Fpzv5M"><link rel="preload" href="/Calcurus/Calcurus-a72dea58349402fb_bg.wasm" crossorigin="anonymous" integrity="sha384-1OVd1dgUQsiAxMtdYJdAz05IuaKF2Jbxlcwnviz4OmrB+RKQUx4m26chYpJTl8Yb" as="fetch" type="application/wasm"></head>
-    <body style="margin: 0; padding: 0; width: 100%; height: 100svh">
-        
+<head>
+    <meta charset="utf-8" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Calcurus-wasm</title>
+    <base href="/Calcurus/" />
+<link rel="modulepreload" href="/Calcurus/Calcurus-70dabc96d071bf19.js" crossorigin="anonymous" integrity="sha384-t7KGZC58Hc2IEohdQM3TzMvcF6AfOu7yNBXlaPmKhigGxyrmCnGHOSuPU4DQpd2x"><link rel="preload" href="/Calcurus/Calcurus-70dabc96d071bf19_bg.wasm" crossorigin="anonymous" integrity="sha384-6MwdUBn8RNWcDqo5kqjNp+U4u4m7tfrTk8+N3Gv21jG9xqSsiBWh7zP/k4cSf244" as="fetch" type="application/wasm"></head>
+<body style="margin: 0; padding: 0; width: 100%; height: 100svh">
+
 <script type="module">
-import init, * as bindings from '/Calcurus/Calcurus-a72dea58349402fb.js';
-const wasm = await init({ module_or_path: '/Calcurus/Calcurus-a72dea58349402fb_bg.wasm' });
+import init, * as bindings from '/Calcurus/Calcurus-70dabc96d071bf19.js';
+const wasm = await init({ module_or_path: '/Calcurus/Calcurus-70dabc96d071bf19_bg.wasm' });
 
 
 window.wasmBindings = bindings;
@@ -19,5 +19,5 @@ window.wasmBindings = bindings;
 dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
 
 </script>
-    </body>
+</body>
 </html>
