@@ -7,8 +7,8 @@
 //! https://mathcenter.oxford.emory.edu/site/cs171/shuntingYardAlgorithm/
 //! https://people.willamette.edu/~fruehr/353/files/ShuntingYard.pdf
 
-use std::collections::HashMap;
 use rust_decimal::{Decimal, MathematicalOps};
+use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Clone, Hash, Eq)]
 pub enum Operator {
@@ -18,7 +18,7 @@ pub enum Operator {
 	Div,
 	Exp,
 	Sqrt,
-	Not
+	Not,
 }
 impl Operator {
 	fn from_char(c: &char) -> Option<Operator> {
@@ -32,7 +32,7 @@ impl Operator {
 			'^' => Some(Operator::Exp),
 			'√' => Some(Operator::Sqrt),
 			'!' => Some(Operator::Not),
-			_ => None
+			_ => None,
 		}
 	}
 
@@ -46,7 +46,7 @@ impl Operator {
 			Operator::Exp => left.checked_powd(right).unwrap(),
 			// TODO: Handle Sqrt.
 			Operator::Sqrt => Decimal::default(),
-			_ => Decimal::default()
+			_ => Decimal::default(),
 		}
 	}
 }
@@ -54,7 +54,7 @@ impl Operator {
 #[derive(Debug, PartialEq, Hash, Clone, Eq)]
 enum Associativity {
 	Right,
-	Left
+	Left,
 }
 
 #[derive(Debug, PartialEq, Hash, Clone, Eq)]
@@ -64,10 +64,7 @@ struct OpInfo {
 }
 impl OpInfo {
 	fn from(precedence: usize, associativity: Associativity) -> OpInfo {
-		Self {
-			precedence,
-			associativity
-		}
+		Self { precedence, associativity }
 	}
 }
 
@@ -87,7 +84,7 @@ pub struct AUParser {
 	precedence_map: HashMap<Operator, OpInfo>,
 	output: Vec<ArithmeticUnit>,
 	stack: Vec<Operator>,
-	result: Decimal
+	result: Decimal,
 }
 impl AUParser {
 	pub fn init() -> Self {
@@ -101,7 +98,7 @@ impl AUParser {
 		self.tokens = input.chars().collect();
 		self
 	}
-	
+
 	pub fn reset(&mut self) {
 		self.tokens = vec![];
 		self.output = vec![];
@@ -118,8 +115,8 @@ impl AUParser {
 				'0'..='9' | '.' => {
 					stage_buffer.push(*token);
 					expect_operand = false;
-				},
-				'+' | '-' | '×' | '÷' | '*' | '/' | '^'  => {
+				}
+				'+' | '-' | '×' | '÷' | '*' | '/' | '^' => {
 					// Handle buffered number first:
 					if !stage_buffer.is_empty() {
 						// TODO: Handle None
@@ -149,7 +146,9 @@ impl AUParser {
 					while let Some(stack_operator) = self.stack.last() {
 						let stack_op_info = self.precedence_map.get(stack_operator).unwrap();
 
-						if (in_op_info.precedence < stack_op_info.precedence) || (in_op_info.precedence == stack_op_info.precedence && in_op_info.associativity == Associativity::Left) {
+						if (in_op_info.precedence < stack_op_info.precedence)
+							|| (in_op_info.precedence == stack_op_info.precedence && in_op_info.associativity == Associativity::Left)
+						{
 							let stack_op = self.stack.pop().unwrap();
 							self.output.push(ArithmeticUnit::Op(stack_op));
 							continue;
@@ -159,7 +158,7 @@ impl AUParser {
 					}
 					self.stack.push(input_operator);
 					expect_operand = true;
-				},
+				}
 				_ => (),
 			}
 		}
@@ -225,8 +224,8 @@ pub fn calculate(input: String) -> Decimal {
 
 #[cfg(test)]
 mod tests {
-	use rust_decimal_macros::dec;
 	use crate::parser::calculate;
+	use rust_decimal_macros::dec;
 
 	#[test]
 	fn add_two_digits() {

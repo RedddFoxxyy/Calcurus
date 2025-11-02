@@ -10,36 +10,30 @@
 
 mod parser;
 
-use crate::parser::{AUParser, ArithmeticUnit};
-use iced::widget::{button, center, column, row, text};
-use iced::{alignment, window, Element, Font, Size, Theme};
-use std::env;
+use iced::{
+	Element, Font, Size, Theme, alignment,
+	widget::{button, center, column, row, text},
+	window,
+};
 
 static JETBRAINS_MONO_BYTES: &[u8] = include_bytes!("./resources/fonts/JetBrainsMonoNerdFont-Regular.ttf");
 pub const JETBRAINS_MONO_NERD_FONT: Font = Font::with_name("JetBrainsMono Nerd Font");
-
-/// A Buffer(Vector) of ArithmeticUnits, and the current selected/entered unit.
-#[derive(Default)]
-pub struct ArithmeticUnitBuffer {
-	pub buffer: Vec<ArithmeticUnit>,
-	pub current_unit: Option<ArithmeticUnit>,
-}
 
 #[derive(Debug, Clone)]
 pub(crate) enum Message {
 	Click(String),
 }
 
-pub(crate) struct Calcurus {
-	pub debug_mode: bool,
+struct Calcurus {
+	debug_mode: bool,
 	/// Buffer to store the string that will be displayed on the calculator.
-	pub display_buffer: String,
+	display_buffer: String,
 	/// Used to track if the output of last operation was decimal value or not.
-	pub is_output_dec: bool,
+	is_output_dec: bool,
 	/// Parser unit that will be used to operate on the buffer.
-	parser: AUParser,
+	parser: parser::AUParser,
 	/// Stores the Keyboard Keys.
-	pub keyboard: Vec<&'static str>,
+	keyboard: Vec<&'static str>,
 }
 
 impl Default for Calcurus {
@@ -49,7 +43,7 @@ impl Default for Calcurus {
 		Self {
 			debug_mode: false,
 			display_buffer: String::new(),
-			parser: AUParser::init(),
+			parser: parser::AUParser::init(),
 			// thought [initialization]: Should this be initialized as true or not?
 			is_output_dec: true,
 			keyboard: keys,
@@ -72,9 +66,7 @@ impl Calcurus {
 
 		let button_rows = create_default_rows(self);
 
-		let keys_column: iced::widget::Column<_> = column(button_rows)
-			.spacing(3)
-			.height(iced::Length::FillPortion(4));
+		let keys_column: iced::widget::Column<_> = column(button_rows).spacing(3).height(iced::Length::FillPortion(4));
 
 		let content: iced::widget::Column<_> = iced::widget::column![display, keys_column]
 			.padding(5)
@@ -92,26 +84,7 @@ impl Calcurus {
 
 pub fn generate_key_layout() -> Vec<&'static str> {
 	vec![
-		"7",
-		"8",
-		"9",
-		"+",
-		"4",
-		"5",
-		"6",
-		"-",
-		"1",
-		"2",
-		"3",
-		"×",
-		"0",
-		".",
-		"^",
-		"÷",
-		"√",
-		"Bck",
-		"Clr",
-		"=",
+		"7", "8", "9", "+", "4", "5", "6", "-", "1", "2", "3", "×", "0", ".", "^", "÷", "√", "Bck", "Clr", "=",
 	]
 }
 
@@ -158,10 +131,10 @@ pub(crate) fn handle_key_click(state: &mut Calcurus, button_id: String) {
 		// TODO: Add handling case for '√'
 		'0'..='9' | '.' | '+' | '-' | '*' | '×' | '/' | '÷' | '^' => {
 			state.display_buffer.push(button_id_char);
-		},
+		}
 		'=' => {
 			operate_on_buffer(state);
-		},
+		}
 		_ => (),
 	}
 }
@@ -193,30 +166,27 @@ fn operate_on_buffer(app_state: &mut Calcurus) {
 fn set_gpu_backend() {
 	if cfg!(target_os = "windows") {
 		unsafe {
-			env::set_var("WGPU_BACKEND", "dx12");
+			std::env::set_var("WGPU_BACKEND", "dx12");
 		}
 	} else if cfg!(target_os = "linux") {
 		unsafe {
-			env::set_var("WGPU_BACKEND", "vulkan");
+			std::env::set_var("WGPU_BACKEND", "vulkan");
 		}
 	} else if cfg!(target_os = "macos") {
 		unsafe {
-			env::set_var("WGPU_BACKEND", "metal");
+			std::env::set_var("WGPU_BACKEND", "metal");
 		}
 	} else {
 		// Set a default backend or handle unsupported OS
 		unsafe {
-			env::set_var("ICED_BACKEND", "tiny-skia");
-			// env::set_var("WGPU_BACKEND", "vulkan");
+			std::env::set_var("ICED_BACKEND", "tiny-skia");
+			// std::env::set_var("WGPU_BACKEND", "vulkan");
 		}
 		eprintln!("Warning: Operating system not specifically handled. Using Software Rendering.");
 	}
 }
 
-static MIN_WINDOW_SIZE: Size = Size {
-	width: 280.0,
-	height: 400.0,
-};
+static MIN_WINDOW_SIZE: Size = Size { width: 280.0, height: 400.0 };
 
 fn main() -> iced::Result {
 	let window_settings = window::Settings {
@@ -232,5 +202,3 @@ fn main() -> iced::Result {
 		.theme(|_| Theme::KanagawaDragon)
 		.run()
 }
-
-
