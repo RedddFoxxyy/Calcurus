@@ -7,6 +7,7 @@ use iced::{
 };
 
 static JETBRAINS_MONO_BYTES: &[u8] = include_bytes!("./resources/fonts/JetBrainsMonoNerdFont-Regular.ttf");
+static WINDOW_ICON_BYTES: &[u8] = include_bytes!("./resources/images/Calcurus1_0.5.png");
 pub const JETBRAINS_MONO_NERD_FONT: Font = Font::with_name("JetBrainsMono Nerd Font");
 
 #[derive(Debug, Clone)]
@@ -189,9 +190,12 @@ fn set_gpu_backend() {
 static MIN_WINDOW_SIZE: Size = Size { width: 280.0, height: 400.0 };
 
 fn main() -> iced::Result {
+	let icon = window::icon::from_file_data(WINDOW_ICON_BYTES, None).ok();
+	
 	let window_settings = window::Settings {
 		size: MIN_WINDOW_SIZE,
 		min_size: Some(MIN_WINDOW_SIZE),
+		icon,
 		..window::Settings::default()
 	};
 

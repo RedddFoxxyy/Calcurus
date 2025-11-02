@@ -1,0 +1,46 @@
+#!/bin/bash
+
+arch=$(uname -m)
+
+if [[ "$arch" == "x86_64" ]]; then
+	TOOL_ARCH="x86_64"
+elif [[ "$arch" == "aarch64" ]]; then
+	TOOL_ARCH="aarch64"
+else
+	echo "Unsupported architecture: $arch"
+	exit 1
+fi
+
+echo "Creating AppDir structure..."
+mkdir -p AppDir/usr/bin
+mkdir -p AppDir/usr/share/applications
+mkdir -p AppDir/usr/share/icons/hicolor/4000x4000/apps
+mkdir -p AppDir/usr/share/icons/hicolor/scalable/apps
+
+echo "Copying files..."
+cp ../../target/release/Calcurus AppDir/usr/bin/
+cp AppRun AppDir/
+cp Calcurus.desktop AppDir/
+cp Calcurus.desktop AppDir/usr/share/applications/
+cp ../../src/resources/images/Calcurus1_0.5.png AppDir/Calcurus.png
+cp ../../src/resources/images/Calcurus1_0.5.png AppDir/usr/share/icons/hicolor/4000x4000/apps/Calcurus.png
+cp ../../src/resources/images/Calcurus1_1000.svg AppDir/usr/share/icons/hicolor/scalable/apps/Calcurus.svg
+
+chmod +x AppDir/AppRun
+chmod +x AppDir/usr/bin/Calcurus
+
+TOOL_FILENAME="appimagetool-${TOOL_ARCH}.AppImage"
+TOOL_URL="https://github.com/AppImage/AppImageKit/releases/download/continuous/${TOOL_FILENAME}"
+
+if [[ ! -f "$TOOL_FILENAME" ]]; then
+	echo "Downloading $TOOL_FILENAME..."
+	wget -q "$TOOL_URL"
+	chmod +x "$TOOL_FILENAME"
+else
+	echo "$TOOL_FILENAME already exists, skipping download."
+fi
+
+echo "Building AppImage..."
+ARCH="$TOOL_ARCH" "./$TOOL_FILENAME" AppDir Calcurus.AppImage
+
+rm -rf AppDir

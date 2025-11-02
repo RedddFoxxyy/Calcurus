@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Calcurus
+Comment=Calcurus is a simple calculator written in Rust using the iced framework.
+Exec=Calcurus
+Icon=Calcurus
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupWMClass=io-github-redddfoxxyy-Calcurus

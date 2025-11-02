@@ -1,7 +1,10 @@
 /.vscode
 /.idea
 /target
-/target
 Cargo.lock
 *.lock
 /dist
+/packaging/appimage/AppDir
+/packaging/appimage/appimagetool-x86_64.AppImage
+/packaging/appimage/Calcurus.AppImage
+/packaging/package.sh
