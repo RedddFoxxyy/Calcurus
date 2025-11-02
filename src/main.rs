@@ -1,13 +1,3 @@
-//! The Basic Working and logic of the operation of this calculator is that there is an empty buffer where we can push and pop Arithmetic Units ( see types.rs ).
-//! When we type any number/operator on the calculator, these values are pushed to this buffer and during this various edge cases are also checked.
-//! Once the user clicks the 'equal to' key, instead of pushing this to buffer, a function is called to operate on this buffer, and this function operates
-//! on each unit one by one.
-//!
-//! To handle a number with multiple digits, a number is only pushed to the buffer once the user clicks on an operator or when equal to sign is clicked.
-//! However, this does not affect the handling of the visual buffer (the display of calculator). The clicked key character gets pushed to the visual buffer immediately.
-
-// TODO: Handle NaN and Out of Bounds.
-
 mod parser;
 
 use iced::{

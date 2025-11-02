@@ -74,7 +74,7 @@ impl OpInfo {
 	}
 }
 
-/// An Arithmetic Unit type, is an enum that can have two types either a DecNumber or an Operator.
+/// An Arithmetic Unit type is an enum that can have two types, either a Decimal or an Operator.
 /// Where an Operator is any arithmetic operator such as '+' and, a Number is of type 'Decimal' from
 /// the 'rust_decimal' crate.
 #[derive(Clone, Debug, PartialEq)]
@@ -253,7 +253,7 @@ pub fn calculate(input: String) -> ParseResult {
 
 #[cfg(test)]
 mod tests {
-	use crate::parser::calculate;
+	use crate::parser::{calculate, ParseErr};
 	use rust_decimal_macros::dec;
 
 	#[test]
@@ -365,5 +365,37 @@ mod tests {
 		let result = calculate(input).unwrap();
 
 		assert_eq!(result, dec!(74.5817));
+	}
+
+	#[test]
+	fn divide_by_zero() {
+		let input = "2345/0".to_string();
+		let result = calculate(input).unwrap_err();
+
+		assert_eq!(result, ParseErr::DivisionByZero);
+	}
+
+	#[test]
+	fn divide_zero_by_zero() {
+		let input = "0/0".to_string();
+		let result = calculate(input).unwrap_err();
+
+		assert_eq!(result, ParseErr::DivisionByZero);
+	}
+
+	#[test]
+	fn out_of_bounds() {
+		let input = "2^2^2^2^2^2".to_string();
+		let result = calculate(input).unwrap_err();
+
+		assert_eq!(result, ParseErr::OutOfBounds);
+	}
+
+	#[test]
+	fn syntax_error() {
+		let input = "3*3+r".to_string();
+		let result = calculate(input).unwrap_err();
+
+		assert_eq!(result, ParseErr::SyntaxErr);
 	}
 }
