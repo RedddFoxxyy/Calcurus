@@ -278,50 +278,50 @@ fn handle_num_keys(state: &mut Calcurus, button_id_char: char) {
 }
 
 fn operate_on_buffer(app_state: &mut Calcurus) {
-	let mut first_num: bool = true;
-	let mut buf1: Decimal = dec!(0);
-	let mut buf2: Decimal;
+	// let mut first_num: bool = true;
+	// let mut buf1: Decimal = dec!(0);
+	// let mut buf2: Decimal;
+	// 
+	// let mut current_operator: ArithmeticUnit = ArithmeticUnit::Operator("+".to_string());
+	// let num_object_iterator = app_state.unit_buf.buffer.iter();
+	// 
+	// for num_object in num_object_iterator {
+	// 	if let &ArithmeticUnit::Number(num) = num_object {
+	// 		if first_num {
+	// 			buf1 = num;
+	// 			first_num = false;
+	// 		} else {
+	// 			buf2 = num;
+	// 			app_state.is_output_dec = perform_calculation(
+	// 				&mut buf1,
+	// 				&mut buf2,
+	// 				&mut current_operator,
+	// 				&mut app_state.display_buffer,
+	// 			);
+	// 		}
+	// 	} else {
+	// 		current_operator = num_object.clone();
+	// 	}
+	// }
+	// 
+	// let buf1_string = buf1.to_string();
+	// if app_state.is_output_dec {
+	// 	let buf1_dec = buf1_string.parse::<Decimal>().unwrap();
+	// 	let buf1_num_object = ArithmeticUnit::Number(buf1_dec);
+	// 
+	// 	app_state.unit_buf.buffer.clear();
+	// 	app_state.unit_buf.buffer.push(buf1_num_object);
+	// 	// num_object_buffer.current_object = Some(buf1_num_object);
+	// 
+	// 	app_state.display_buffer.clear();
+	// 	app_state.display_buffer.push_str(&buf1_string);
+	// }
 	
-	let mut current_operator: ArithmeticUnit = ArithmeticUnit::Operator("+".to_string());
-	let num_object_iterator = app_state.unit_buf.buffer.iter();
-	
-	for num_object in num_object_iterator {
-		if let &ArithmeticUnit::Number(num) = num_object {
-			if first_num {
-				buf1 = num;
-				first_num = false;
-			} else {
-				buf2 = num;
-				app_state.is_output_dec = perform_calculation(
-					&mut buf1,
-					&mut buf2,
-					&mut current_operator,
-					&mut app_state.display_buffer,
-				);
-			}
-		} else {
-			current_operator = num_object.clone();
-		}
-	}
-	
-	let buf1_string = buf1.to_string();
-	if app_state.is_output_dec {
-		let buf1_dec = buf1_string.parse::<Decimal>().unwrap();
-		let buf1_num_object = ArithmeticUnit::Number(buf1_dec);
-	
-		app_state.unit_buf.buffer.clear();
-		app_state.unit_buf.buffer.push(buf1_num_object);
-		// num_object_buffer.current_object = Some(buf1_num_object);
-	
-		app_state.display_buffer.clear();
-		app_state.display_buffer.push_str(&buf1_string);
-	}
-	
-	// let result = calculate(app_state.display_buffer.clone());
-	// app_state.display_buffer.clear();
-	// app_state.current_input_buffer.clear();
-	// app_state.display_buffer.push_str(result.to_string().as_str());
-	// app_state.unit_buf.buffer.push(ArithmeticUnit::Number(result));
+	let result = calculate(app_state.display_buffer.clone());
+	app_state.display_buffer.clear();
+	app_state.current_input_buffer.clear();
+	app_state.display_buffer.push_str(result.to_string().as_str());
+	app_state.unit_buf.buffer.push(ArithmeticUnit::Number(result));
 }
 
 fn perform_calculation(

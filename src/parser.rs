@@ -116,12 +116,13 @@ impl AUParser {
 				'0'..='9' | '.' => {
 					stage_buffer.push(*token);
 				},
-				'+' | '-' | '×' | '÷' | '^' => {
+				'+' | '-' | '×' | '÷' | '*' | '/' | '^'  => {
 					// Handle buffered number first:
-					let decimal = stage_buffer.parse::<Decimal>().unwrap();
-					let arithmetic_unit = ArithmeticUnit::Num(decimal);
-					self.output.push(arithmetic_unit);
-					stage_buffer.clear();
+					if !stage_buffer.is_empty() {
+						// TODO: Handle None
+						self.output.push(ArithmeticUnit::Num(stage_buffer.parse::<Decimal>().unwrap()));
+						stage_buffer.clear();
+					}
 
 					// Then Handle the operator:
 					// TODO: Handle None.
@@ -130,23 +131,20 @@ impl AUParser {
 						self.stack.push(input_operator);
 						continue;
 					}
-					let stack_operator = self.stack.last().unwrap();
 					let in_op_info = self.precedence_map.get(&input_operator).unwrap();
-					let stack_op_info = self.precedence_map.get(stack_operator).unwrap();
+					
+					while let Some(stack_operator) = self.stack.last() {
+						let stack_op_info = self.precedence_map.get(stack_operator).unwrap();
 
-					if in_op_info.precedence < stack_op_info.precedence {
-						let stack_op = self.stack.pop().unwrap();
-						self.output.push(ArithmeticUnit::Op(stack_op));
-					} else if in_op_info.precedence > stack_op_info.precedence {
-						self.stack.push(input_operator);
-					} else if in_op_info.precedence == stack_op_info.precedence {
-						if  in_op_info.associativity == Associativity::Left {
+						if (in_op_info.precedence < stack_op_info.precedence) || (in_op_info.precedence == stack_op_info.precedence && in_op_info.associativity == Associativity::Left) {
 							let stack_op = self.stack.pop().unwrap();
 							self.output.push(ArithmeticUnit::Op(stack_op));
-						} else {
-							self.stack.push(input_operator);
+							continue;
 						}
+						
+						break;
 					}
+					self.stack.push(input_operator);
 				},
 				_ => (),
 			}
@@ -208,4 +206,46 @@ pub fn calculate(input: String) -> Decimal {
 	let mut parser = AUParser::init();
 	parser.set_input(input);
 	parser.calculate_result()
+}
+
+#[cfg(test)]
+mod parser_tests {
+	use rust_decimal_macros::dec;
+	use crate::parser::calculate;
+
+	#[test]
+	fn add_two_digits() {
+		let input = "10+5".to_string();
+
+		let result = calculate(input);
+
+		assert_eq!(result, dec!(15));
+	}
+
+	#[test]
+	fn add_three_digits() {
+		let input = "10+5+5".to_string();
+
+		let result = calculate(input);
+
+		assert_eq!(result, dec!(20));
+	}
+
+	#[test]
+	fn multiply_two_digits() {
+		let input = "22*8".to_string();
+
+		let result = calculate(input);
+
+		assert_eq!(result, dec!(176));
+	}
+
+	#[test]
+	fn multiply_three_digits() {
+		let input = "10*5*5".to_string();
+
+		let result = calculate(input);
+
+		assert_eq!(result, dec!(250));
+	}
 }
