@@ -1,14 +1,25 @@
 mod parser;
 
+use iced::theme::{Custom, Palette};
 use iced::{
-	Element, Font, Size, Theme, alignment,
+	Element, Font, Size, Theme, alignment, color,
 	widget::{button, center, column, row, text},
 	window,
 };
 
 static JETBRAINS_MONO_BYTES: &[u8] = include_bytes!("./resources/fonts/JetBrainsMonoNerdFont-Regular.ttf");
 static WINDOW_ICON_BYTES: &[u8] = include_bytes!("./resources/images/Calcurus1_0.5.png");
+
 pub const JETBRAINS_MONO_NERD_FONT: Font = Font::with_name("JetBrainsMono Nerd Font");
+
+#[rustfmt::skip]
+static KEYBOARD_LAYOUT: [&str; 20] = [
+	"7", "8", "9", "+",
+	"4", "5", "6", "-",
+	"1", "2", "3", "×",
+	"0", ".", "^", "÷",
+	"√", "Bck", "Clr", "=",
+];
 
 #[derive(Debug, Clone)]
 pub(crate) enum Message {
@@ -22,22 +33,17 @@ struct Calcurus {
 	/// Used to track if the output of last operation was decimal value or not.
 	is_output_dec: bool,
 	/// Parser unit that will be used to operate on the buffer.
-	parser: parser::AUParser,
-	/// Stores the Keyboard Keys.
-	keyboard: Vec<&'static str>,
+	parser: parser::ShuntParser,
 }
 
 impl Default for Calcurus {
 	fn default() -> Self {
-		let keys: Vec<&'static str> = generate_key_layout();
-
 		Self {
 			debug_mode: false,
 			display_buffer: String::new(),
-			parser: parser::AUParser::init(),
+			parser: parser::ShuntParser::new(),
 			// thought [initialization]: Should this be initialized as true or not?
 			is_output_dec: true,
-			keyboard: keys,
 		}
 	}
 }
@@ -73,18 +79,12 @@ impl Calcurus {
 	}
 }
 
-pub fn generate_key_layout() -> Vec<&'static str> {
-	vec![
-		"7", "8", "9", "+", "4", "5", "6", "-", "1", "2", "3", "×", "0", ".", "^", "÷", "√", "Bck", "Clr", "=",
-	]
-}
-
 pub(crate) fn create_default_rows(calcurus: &'_ Calcurus) -> Vec<Element<'_, Message>> {
 	let mut button_rows: Vec<Element<Message>> = Vec::new();
 	let mut current_row: Vec<Element<Message>> = Vec::new();
 
 	// Iterate through all buttons in the keyboard
-	for (index, key) in calcurus.keyboard.iter().enumerate() {
+	for (index, key) in KEYBOARD_LAYOUT.iter().enumerate() {
 		let key_label = text(*key)
 			.width(iced::Length::Fill)
 			.height(iced::Length::Fill)
@@ -106,7 +106,7 @@ pub(crate) fn create_default_rows(calcurus: &'_ Calcurus) -> Vec<Element<'_, Mes
 		current_row.push(button_element);
 
 		// Create a new row after every 4 buttons
-		if current_row.len() == 4 || index == calcurus.keyboard.len() - 1 {
+		if current_row.len() == 4 || index == KEYBOARD_LAYOUT.len() - 1 {
 			button_rows.push(row(std::mem::take(&mut current_row)).spacing(3).into());
 		}
 	}
@@ -192,6 +192,14 @@ static MIN_WINDOW_SIZE: Size = Size { width: 280.0, height: 400.0 };
 fn main() -> iced::Result {
 	let icon = window::icon::from_file_data(WINDOW_ICON_BYTES, None).ok();
 
+	pub const KANAGAWA_DRAGON: Palette = Palette {
+		background: color!(0x181616), // Dragon Black 3
+		text: color!(0xc5c9c5),       // Dragon White
+		primary: color!(0x96313a),    // Custom Red
+		success: color!(0x8a9a7b),    // Dragon Green 2
+		danger: color!(0xc4746e),     // Dragon Red
+	};
+
 	let window_settings = window::Settings {
 		size: MIN_WINDOW_SIZE,
 		min_size: Some(MIN_WINDOW_SIZE),
@@ -203,6 +211,6 @@ fn main() -> iced::Result {
 		.font(JETBRAINS_MONO_BYTES)
 		.default_font(JETBRAINS_MONO_NERD_FONT)
 		.window(window_settings)
-		.theme(|_| Theme::KanagawaDragon)
+		.theme(|_| Theme::Custom(std::sync::Arc::new(Custom::new("Calcurus".to_string(), KANAGAWA_DRAGON))))
 		.run()
 }

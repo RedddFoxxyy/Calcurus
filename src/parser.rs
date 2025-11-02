@@ -74,157 +74,7 @@ impl OpInfo {
 	}
 }
 
-/// An Arithmetic Unit type is an enum that can have two types, either a Decimal or an Operator.
-/// Where an Operator is any arithmetic operator such as '+' and, a Number is of type 'Decimal' from
-/// the 'rust_decimal' crate.
-#[derive(Clone, Debug, PartialEq)]
-pub enum ArithmeticUnit {
-	Num(Decimal),
-	Op(Operator),
-}
-
-#[derive(Debug, PartialEq, Clone, Default)]
-pub enum ParseErr {
-	DivisionByZero,
-	OutOfBounds,
-	#[default]
-	SyntaxErr,
-	InvalidNumber,
-}
-impl ParseErr {
-	pub fn as_str(&self) -> &'static str {
-		match self {
-			ParseErr::DivisionByZero => "NaN",
-			ParseErr::OutOfBounds => "Out of Bounds!",
-			ParseErr::SyntaxErr => "Syntax Error!",
-			ParseErr::InvalidNumber => "Invalid Number!",
-		}
-	}
-}
-impl std::fmt::Display for ParseErr {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{}", self.as_str())
-	}
-}
-
-pub type ParseResult = Result<Decimal, ParseErr>;
-
-/// A Basic ArithmeticUnit parser that uses shunting yard algorithm to operate on tokens(of chars) to produce the resulting output.
-#[derive(Debug, PartialEq, Default)]
-pub struct AUParser {
-	tokens: Vec<char>,
-	precedence_map: HashMap<Operator, OpInfo>,
-	output: Vec<ArithmeticUnit>,
-	stack: Vec<Operator>,
-}
-impl AUParser {
-	pub fn init() -> Self {
-		Self {
-			precedence_map: load_operator_precedence(),
-			..Default::default()
-		}
-	}
-
-	pub fn set_input(&mut self, input: String) -> &Self {
-		self.tokens = input.chars().collect();
-		self
-	}
-
-	pub fn reset(&mut self) {
-		self.tokens = vec![];
-		self.output = vec![];
-		self.stack = vec![];
-	}
-
-	fn shunt_tokens(&mut self) -> Result<(), ParseErr> {
-		let mut stage_buffer: String = String::new();
-		let mut expect_operand = true;
-
-		for token in self.tokens.iter() {
-			match token {
-				'0'..='9' | '.' => {
-					stage_buffer.push(*token);
-					expect_operand = false;
-				}
-				'+' | '-' | '×' | '÷' | '*' | '/' | '^' => {
-					// Handle buffered number first:
-					if !stage_buffer.is_empty() {
-						let decimal_num = stage_buffer.parse::<Decimal>().map_err(|_| ParseErr::InvalidNumber)?;
-						self.output.push(ArithmeticUnit::Num(decimal_num));
-						stage_buffer.clear();
-					}
-
-					if expect_operand && (*token == '+' || *token == '-') {
-						if *token == '-' {
-							self.output.push(ArithmeticUnit::Num(Decimal::ZERO));
-							self.stack.push(Operator::Sub);
-							expect_operand = true;
-						}
-						continue;
-					}
-
-					// Then Handle the operator:
-					let input_operator = Operator::from_char(token).ok_or(ParseErr::SyntaxErr)?;
-					if self.stack.is_empty() {
-						self.stack.push(input_operator);
-						expect_operand = true;
-						continue;
-					}
-					let in_op_info = self.precedence_map.get(&input_operator).ok_or(ParseErr::SyntaxErr)?;
-
-					while let Some(stack_operator) = self.stack.last() {
-						let stack_op_info = self.precedence_map.get(stack_operator).ok_or(ParseErr::SyntaxErr)?;
-
-						if (in_op_info.precedence < stack_op_info.precedence)
-							|| (in_op_info.precedence == stack_op_info.precedence && in_op_info.associativity == Associativity::Left)
-						{
-							let stack_op = self.stack.pop().unwrap();
-							self.output.push(ArithmeticUnit::Op(stack_op));
-						} else {
-							break;
-						}
-					}
-					self.stack.push(input_operator);
-					expect_operand = true;
-				}
-				_ => return Err(ParseErr::SyntaxErr),
-			}
-		}
-		if !stage_buffer.is_empty() {
-			let decimal_num = stage_buffer.parse::<Decimal>().map_err(|_| ParseErr::InvalidNumber)?;
-			self.output.push(ArithmeticUnit::Num(decimal_num));
-			stage_buffer.clear();
-		}
-		while let Some(operator) = self.stack.pop() {
-			self.output.push(ArithmeticUnit::Op(operator));
-		}
-		Ok(())
-	}
-
-	fn parse_output_stack(&mut self) -> ParseResult {
-		// NOTE: Maybe this Vec can be converted to a fixed size Array.
-		let mut dec_stack: Vec<Decimal> = vec![];
-		for au in self.output.iter() {
-			if let ArithmeticUnit::Num(dec) = au {
-				dec_stack.push(*dec);
-			} else if let ArithmeticUnit::Op(op) = au {
-				let right_reg = dec_stack.pop().ok_or(ParseErr::SyntaxErr)?;
-				let left_reg = dec_stack.pop().ok_or(ParseErr::SyntaxErr)?;
-				let new_val = op.operate_on(right_reg, left_reg)?;
-				dec_stack.push(new_val);
-			}
-		}
-
-		dec_stack.pop().ok_or(ParseErr::SyntaxErr)
-	}
-
-	pub fn calculate_result(&mut self) -> ParseResult {
-		self.shunt_tokens()?;
-		self.parse_output_stack()
-	}
-}
-
-fn load_operator_precedence() -> HashMap<Operator, OpInfo> {
+static OPERATOR_PRECEDENCE: std::sync::LazyLock<HashMap<Operator, OpInfo>> = std::sync::LazyLock::new(|| {
 	let mut opt_precedence_map: HashMap<Operator, OpInfo> = HashMap::new();
 	// opt_precedence_map.insert(',', OpInfo::from(0, Associativity::Left)); // comma
 	// opt_precedence_map.insert('=', OpInfo::from(1, Associativity::Right)); // assignment
@@ -241,12 +91,160 @@ fn load_operator_precedence() -> HashMap<Operator, OpInfo> {
 	// opt_precedence_map.insert(')', OpInfo::from(15, Associativity::Left)); // Parentheses
 
 	opt_precedence_map
+});
+
+/// A Token type is an enum that can have two types, either a Decimal or an Operator.
+/// Where an Operator is any arithmetic operator such as '+' and, a Number is of type 'Decimal' from
+/// the 'rust_decimal' crate.
+#[derive(Clone, Debug, PartialEq)]
+pub enum Token {
+	Num(Decimal),
+	Op(Operator),
+}
+
+#[derive(Debug, PartialEq, Clone, Default)]
+pub enum ParseErr {
+	DivisionByZero,
+	OutOfBounds,
+	#[default]
+	SyntaxErr,
+	InvalidSymbol,
+}
+impl ParseErr {
+	pub fn as_str(&self) -> &'static str {
+		match self {
+			ParseErr::DivisionByZero => "NaN",
+			ParseErr::OutOfBounds => "Out of Bounds!",
+			ParseErr::SyntaxErr => "Syntax Error!",
+			ParseErr::InvalidSymbol => "Invalid Symbol!",
+		}
+	}
+}
+impl std::fmt::Display for ParseErr {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "{}", self.as_str())
+	}
+}
+
+pub type ParseResult = Result<Decimal, ParseErr>;
+
+/// A Basic Shunting Yard parser that uses shunting yard algorithm to operate on tokens to produce the resulting output.
+#[derive(Debug, PartialEq, Default)]
+pub struct ShuntParser {
+	/// Tokens in char format from the input string.
+	c_tokens: Vec<char>,
+	/// The final output stack of tokens.
+	output: Vec<Token>,
+	/// Operator Stack.
+	stack: Vec<Operator>,
+}
+impl ShuntParser {
+	pub fn new() -> Self {
+		ShuntParser::default()
+	}
+
+	pub fn set_input(&mut self, input: String) -> &Self {
+		self.c_tokens = input.chars().collect();
+		self
+	}
+
+	pub fn reset(&mut self) {
+		self.c_tokens.clear();
+		self.output.clear();
+		self.stack.clear();
+	}
+
+	fn shunt_tokens(&mut self) -> Result<(), ParseErr> {
+		let mut stage_buffer: String = String::new();
+		let mut expect_operand = true;
+
+		for c_token in self.c_tokens.iter() {
+			match c_token {
+				'0'..='9' | '.' => {
+					stage_buffer.push(*c_token);
+					expect_operand = false;
+				}
+				'+' | '-' | '×' | '÷' | '*' | '/' | '^' => {
+					// Handle the buffered number first:
+					if !stage_buffer.is_empty() {
+						let decimal_num = stage_buffer.parse::<Decimal>().map_err(|_| ParseErr::InvalidSymbol)?;
+						self.output.push(Token::Num(decimal_num));
+						stage_buffer.clear();
+					}
+
+					// Then Handle the operator:
+					if expect_operand && (*c_token == '+' || *c_token == '-') {
+						if *c_token == '-' {
+							self.output.push(Token::Num(Decimal::ZERO));
+							self.stack.push(Operator::Sub);
+							expect_operand = true;
+						}
+						continue;
+					}
+
+					let input_operator = Operator::from_char(c_token).ok_or(ParseErr::SyntaxErr)?;
+					if self.stack.is_empty() {
+						self.stack.push(input_operator);
+						expect_operand = true;
+						continue;
+					}
+					let in_op_info = OPERATOR_PRECEDENCE.get(&input_operator).ok_or(ParseErr::SyntaxErr)?;
+
+					while let Some(stack_operator) = self.stack.last() {
+						let stack_op_info = OPERATOR_PRECEDENCE.get(stack_operator).ok_or(ParseErr::SyntaxErr)?;
+
+						if (in_op_info.precedence < stack_op_info.precedence)
+							|| (in_op_info.precedence == stack_op_info.precedence && in_op_info.associativity == Associativity::Left)
+						{
+							let stack_op = self.stack.pop().unwrap();
+							self.output.push(Token::Op(stack_op));
+						} else {
+							break;
+						}
+					}
+					self.stack.push(input_operator);
+					expect_operand = true;
+				}
+				_ => return Err(ParseErr::SyntaxErr),
+			}
+		}
+		if !stage_buffer.is_empty() {
+			let decimal_num = stage_buffer.parse::<Decimal>().map_err(|_| ParseErr::InvalidSymbol)?;
+			self.output.push(Token::Num(decimal_num));
+			stage_buffer.clear();
+		}
+		while let Some(operator) = self.stack.pop() {
+			self.output.push(Token::Op(operator));
+		}
+		Ok(())
+	}
+
+	fn parse_output_stack(&mut self) -> ParseResult {
+		let mut dec_stack: Vec<Decimal> = Vec::with_capacity(self.output.len() / 2 + 1);
+		for au in self.output.iter() {
+			if let Token::Num(dec) = au {
+				dec_stack.push(*dec);
+			} else if let Token::Op(op) = au {
+				let right_reg = dec_stack.pop().ok_or(ParseErr::SyntaxErr)?;
+				let left_reg = dec_stack.pop().ok_or(ParseErr::SyntaxErr)?;
+				let new_val = op.operate_on(right_reg, left_reg)?;
+				dec_stack.push(new_val);
+			}
+		}
+
+		dec_stack.pop().ok_or(ParseErr::SyntaxErr)
+	}
+
+	pub fn calculate_result(&mut self) -> ParseResult {
+		self.shunt_tokens()?;
+		self.parse_output_stack()
+	}
 }
 
 // TODO: Implement calculate function.
 #[allow(dead_code)]
 pub fn calculate(input: String) -> ParseResult {
-	let mut parser = AUParser::init();
+	let mut parser = ShuntParser::new();
 	parser.set_input(input);
 	parser.calculate_result()
 }
