@@ -15,6 +15,7 @@ use iced::{
 	widget::{button, center, column, row, text},
 	window,
 };
+use iced::advanced::Renderer;
 
 static JETBRAINS_MONO_BYTES: &[u8] = include_bytes!("./resources/fonts/JetBrainsMonoNerdFont-Regular.ttf");
 pub const JETBRAINS_MONO_NERD_FONT: Font = Font::with_name("JetBrainsMono Nerd Font");
@@ -155,11 +156,21 @@ fn handle_delete_keys(state: &mut Calcurus, button_id: &str) {
 
 fn operate_on_buffer(app_state: &mut Calcurus) {
 	app_state.parser.set_input(app_state.display_buffer.clone());
-	let result = app_state.parser.calculate_result();
-	app_state.display_buffer.clear();
-	app_state.display_buffer.push_str(result.to_string().as_str());
-	app_state.parser.reset();
-	app_state.is_output_dec = true;
+	
+	match app_state.parser.calculate_result() {
+		Ok(result) => {
+			app_state.display_buffer.clear();
+			app_state.display_buffer.push_str(result.to_string().as_str());
+			app_state.parser.reset();
+			app_state.is_output_dec = true;
+		},
+		Err(error) => {
+			app_state.display_buffer.clear();
+			app_state.display_buffer.push_str(error.as_str());
+			app_state.parser.reset();
+			app_state.is_output_dec = false;
+		}
+	}
 }
 
 #[allow(unused)]

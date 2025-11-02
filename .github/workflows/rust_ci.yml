@@ -1,0 +1,44 @@
+name: Rust CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - release
+    paths:
+      - "src/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+
+  pull_request:
+    paths:
+      - "src/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: clippy, rustfmt
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run linter
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Run tests
+        run: cargo test --all --all-features --verbose
+
+      - name: Build project
+        run: cargo build --verbose --all-features

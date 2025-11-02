@@ -36,17 +36,23 @@ impl Operator {
 		}
 	}
 
-	fn operate_on(&self, right: Decimal, left: Decimal) -> Decimal {
+	fn operate_on(&self, right: Decimal, left: Decimal) -> ParseResult {
 		match self {
-			Operator::Add => left + right,
-			Operator::Sub => left - right,
-			Operator::Mul => left * right,
-			Operator::Div => left / right,
+			Operator::Add => left.checked_add(right).ok_or(ParseErr::OutOfBounds),
+			Operator::Sub => left.checked_sub(right).ok_or(ParseErr::OutOfBounds),
+			Operator::Mul => left.checked_mul(right).ok_or(ParseErr::OutOfBounds),
+			Operator::Div => {
+				if right == Decimal::ZERO {
+					Err(ParseErr::DivisionByZero)
+				} else {
+					left.checked_div(right).ok_or(ParseErr::OutOfBounds)
+				}
+			}
 			// TODO: Handle Unwrap.
-			Operator::Exp => left.checked_powd(right).unwrap(),
+			Operator::Exp => left.checked_powd(right).ok_or(ParseErr::OutOfBounds),
 			// TODO: Handle Sqrt.
-			Operator::Sqrt => Decimal::default(),
-			_ => Decimal::default(),
+			Operator::Sqrt => Ok(Decimal::default()),
+			_ => Ok(Decimal::default()),
 		}
 	}
 }
@@ -77,6 +83,32 @@ pub enum ArithmeticUnit {
 	Op(Operator),
 }
 
+#[derive(Debug, PartialEq, Clone, Default)]
+pub enum ParseErr {
+	DivisionByZero,
+	OutOfBounds,
+	#[default]
+	SyntaxErr,
+	InvalidNumber,
+}
+impl ParseErr {
+	pub fn as_str(&self) -> &'static str {
+		match self {
+			ParseErr::DivisionByZero => "NaN",
+			ParseErr::OutOfBounds => "Out of Bounds!",
+			ParseErr::SyntaxErr => "Syntax Error!",
+			ParseErr::InvalidNumber => "Invalid Number!",
+		}
+	}
+}
+impl std::fmt::Display for ParseErr {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "{}", self.as_str())
+	}
+}
+
+pub type ParseResult = Result<Decimal, ParseErr>;
+
 /// A Basic ArithmeticUnit parser that uses shunting yard algorithm to operate on tokens(of chars) to produce the resulting output.
 #[derive(Debug, PartialEq, Default)]
 pub struct AUParser {
@@ -84,7 +116,6 @@ pub struct AUParser {
 	precedence_map: HashMap<Operator, OpInfo>,
 	output: Vec<ArithmeticUnit>,
 	stack: Vec<Operator>,
-	result: Decimal,
 }
 impl AUParser {
 	pub fn init() -> Self {
@@ -103,10 +134,9 @@ impl AUParser {
 		self.tokens = vec![];
 		self.output = vec![];
 		self.stack = vec![];
-		self.result = Decimal::default();
 	}
 
-	fn shunt_tokens(&mut self) {
+	fn shunt_tokens(&mut self) -> Result<(), ParseErr> {
 		let mut stage_buffer: String = String::new();
 		let mut expect_operand = true;
 
@@ -119,8 +149,8 @@ impl AUParser {
 				'+' | '-' | '×' | '÷' | '*' | '/' | '^' => {
 					// Handle buffered number first:
 					if !stage_buffer.is_empty() {
-						// TODO: Handle None
-						self.output.push(ArithmeticUnit::Num(stage_buffer.parse::<Decimal>().unwrap()));
+						let decimal_num = stage_buffer.parse::<Decimal>().map_err(|_| ParseErr::InvalidNumber)?;
+						self.output.push(ArithmeticUnit::Num(decimal_num));
 						stage_buffer.clear();
 					}
 
@@ -134,64 +164,63 @@ impl AUParser {
 					}
 
 					// Then Handle the operator:
-					// TODO: Handle None.
-					let input_operator = Operator::from_char(token).unwrap();
+					let input_operator = Operator::from_char(token).ok_or(ParseErr::SyntaxErr)?;
 					if self.stack.is_empty() {
 						self.stack.push(input_operator);
 						expect_operand = true;
 						continue;
 					}
-					let in_op_info = self.precedence_map.get(&input_operator).unwrap();
+					let in_op_info = self.precedence_map.get(&input_operator).ok_or(ParseErr::SyntaxErr)?;
 
 					while let Some(stack_operator) = self.stack.last() {
-						let stack_op_info = self.precedence_map.get(stack_operator).unwrap();
+						let stack_op_info = self.precedence_map.get(stack_operator).ok_or(ParseErr::SyntaxErr)?;
 
 						if (in_op_info.precedence < stack_op_info.precedence)
 							|| (in_op_info.precedence == stack_op_info.precedence && in_op_info.associativity == Associativity::Left)
 						{
 							let stack_op = self.stack.pop().unwrap();
 							self.output.push(ArithmeticUnit::Op(stack_op));
-							continue;
+						} else {
+							break;
 						}
-
-						break;
 					}
 					self.stack.push(input_operator);
 					expect_operand = true;
 				}
-				_ => (),
+				_ => return Err(ParseErr::SyntaxErr),
 			}
 		}
 		if !stage_buffer.is_empty() {
-			// TODO: Handle None
-			self.output.push(ArithmeticUnit::Num(stage_buffer.parse::<Decimal>().unwrap()));
+			let decimal_num = stage_buffer.parse::<Decimal>().map_err(|_| ParseErr::InvalidNumber)?;
+			self.output.push(ArithmeticUnit::Num(decimal_num));
 			stage_buffer.clear();
 		}
 		while let Some(operator) = self.stack.pop() {
 			self.output.push(ArithmeticUnit::Op(operator));
 		}
+		Ok(())
 	}
 
-	fn parse_output_stack(&mut self) {
+	fn parse_output_stack(&mut self) -> ParseResult {
 		// NOTE: Maybe this Vec can be converted to a fixed size Array.
 		let mut dec_stack: Vec<Decimal> = vec![];
 		for au in self.output.iter() {
 			if let ArithmeticUnit::Num(dec) = au {
 				dec_stack.push(*dec);
 			} else if let ArithmeticUnit::Op(op) = au {
-				let right_reg = dec_stack.pop().unwrap();
-				let left_reg = dec_stack.pop().unwrap();
-				let new_val = op.operate_on(right_reg, left_reg);
+				let right_reg = dec_stack.pop().ok_or(ParseErr::SyntaxErr)?;
+				let left_reg = dec_stack.pop().ok_or(ParseErr::SyntaxErr)?;
+				let new_val = op.operate_on(right_reg, left_reg)?;
 				dec_stack.push(new_val);
 			}
 		}
-		self.result = dec_stack.pop().unwrap();
+
+		dec_stack.pop().ok_or(ParseErr::SyntaxErr)
 	}
 
-	pub fn calculate_result(&mut self) -> Decimal {
-		self.shunt_tokens();
-		self.parse_output_stack();
-		self.result
+	pub fn calculate_result(&mut self) -> ParseResult {
+		self.shunt_tokens()?;
+		self.parse_output_stack()
 	}
 }
 
@@ -216,7 +245,7 @@ fn load_operator_precedence() -> HashMap<Operator, OpInfo> {
 
 // TODO: Implement calculate function.
 #[allow(dead_code)]
-pub fn calculate(input: String) -> Decimal {
+pub fn calculate(input: String) -> ParseResult {
 	let mut parser = AUParser::init();
 	parser.set_input(input);
 	parser.calculate_result()
@@ -230,7 +259,7 @@ mod tests {
 	#[test]
 	fn add_two_digits() {
 		let input = "10+5".to_string();
-		let result = calculate(input);
+		let result = calculate(input).unwrap();
 
 		assert_eq!(result, dec!(15));
 	}
@@ -238,7 +267,7 @@ mod tests {
 	#[test]
 	fn add_three_digits() {
 		let input = "10+5+5".to_string();
-		let result = calculate(input);
+		let result = calculate(input).unwrap();
 
 		assert_eq!(result, dec!(20));
 	}
@@ -246,7 +275,7 @@ mod tests {
 	#[test]
 	fn multiply_two_digits() {
 		let input = "22*8".to_string();
-		let result = calculate(input);
+		let result = calculate(input).unwrap();
 
 		assert_eq!(result, dec!(176));
 	}
@@ -254,7 +283,7 @@ mod tests {
 	#[test]
 	fn multiply_three_digits() {
 		let input = "10*5*5".to_string();
-		let result = calculate(input);
+		let result = calculate(input).unwrap();
 
 		assert_eq!(result, dec!(250));
 	}
@@ -262,7 +291,7 @@ mod tests {
 	#[test]
 	fn divide_two_digits() {
 		let input = "100/2".to_string();
-		let result = calculate(input);
+		let result = calculate(input).unwrap();
 
 		assert_eq!(result, dec!(50));
 	}
@@ -270,7 +299,7 @@ mod tests {
 	#[test]
 	fn divide_three_digits() {
 		let input = "100/2/2".to_string();
-		let result = calculate(input);
+		let result = calculate(input).unwrap();
 
 		assert_eq!(result, dec!(25));
 	}
@@ -278,7 +307,7 @@ mod tests {
 	#[test]
 	fn exponentiation_two_digits() {
 		let input = "100^2".to_string();
-		let result = calculate(input);
+		let result = calculate(input).unwrap();
 
 		assert_eq!(result, dec!(10000));
 	}
@@ -286,22 +315,30 @@ mod tests {
 	#[test]
 	fn exponentiation_three_digits() {
 		let input = "100^2^2".to_string();
-		let result = calculate(input);
+		let result = calculate(input).unwrap();
 
 		assert_eq!(result, dec!(100000000));
 	}
 
 	#[test]
+	fn exponentiation_four_digits() {
+		let input = "2^2^2^2".to_string();
+		let result = calculate(input).unwrap();
+
+		assert_eq!(result, dec!(65536));
+	}
+
+	#[test]
 	fn multiple_digits_multiple_operators() {
 		let input = "45*2/3+1".to_string();
-		let result = calculate(input);
+		let result = calculate(input).unwrap();
 
 		assert_eq!(result, dec!(31));
 	}
 	#[test]
 	fn multiple_digits_multiple_operators_2() {
 		let input = "789*3/5+145-66^4".to_string();
-		let result = calculate(input);
+		let result = calculate(input).unwrap();
 
 		assert_eq!(result, dec!(-18974117.6));
 	}
@@ -309,15 +346,23 @@ mod tests {
 	#[test]
 	fn multiple_digits_multiple_operators_3() {
 		let input = "139/3*8-269+66^2+55".to_string();
-		let result = calculate(input);
+		let result = calculate(input).unwrap();
 
 		assert_eq!(result, dec!(4512.6666666666666666666666667));
 	}
 
 	#[test]
+	fn multiple_digits_multiple_operators_4() {
+		let input = "2^2^2-6".to_string();
+		let result = calculate(input).unwrap();
+
+		assert_eq!(result, dec!(10));
+	}
+
+	#[test]
 	fn floating_point_numbers() {
 		let input = "55.2+78.1234-64.431+5.6893".to_string();
-		let result = calculate(input);
+		let result = calculate(input).unwrap();
 
 		assert_eq!(result, dec!(74.5817));
 	}
