@@ -1,5 +1,5 @@
 //! Implementation of a simple token parser that converts input string into tokens of chars and then performs calculation on them to give the result of type
-//! Decimal, it uses Shunting Yard Algorithm to parse the tokens and operate on them to give accurate result adhering to Operator Precedence.
+//! Decimal, it uses Shunting Yard Algorithm to parse the tokens and operate on them to give an accurate result adhering to Operator Precedence.
 //!
 //! Sources:
 //! https://en.wikipedia.org/wiki/Shunting_yard_algorithm
@@ -90,19 +90,19 @@ pub struct AUParser {
 	result: Decimal
 }
 impl AUParser {
-	fn init() -> Self {
+	pub fn init() -> Self {
 		Self {
 			precedence_map: load_operator_precedence(),
 			..Default::default()
 		}
 	}
 
-	fn set_input(&mut self, input: String) -> &Self {
+	pub fn set_input(&mut self, input: String) -> &Self {
 		self.tokens = input.chars().collect();
 		self
 	}
 	
-	fn reset(&mut self) {
+	pub fn reset(&mut self) {
 		self.tokens = vec![];
 		self.output = vec![];
 		self.stack = vec![];
@@ -111,10 +111,13 @@ impl AUParser {
 
 	fn shunt_tokens(&mut self) {
 		let mut stage_buffer: String = String::new();
+		let mut expect_operand = true;
+
 		for token in self.tokens.iter() {
 			match token {
 				'0'..='9' | '.' => {
 					stage_buffer.push(*token);
+					expect_operand = false;
 				},
 				'+' | '-' | '×' | '÷' | '*' | '/' | '^'  => {
 					// Handle buffered number first:
@@ -124,15 +127,25 @@ impl AUParser {
 						stage_buffer.clear();
 					}
 
+					if expect_operand && (*token == '+' || *token == '-') {
+						if *token == '-' {
+							self.output.push(ArithmeticUnit::Num(Decimal::ZERO));
+							self.stack.push(Operator::Sub);
+							expect_operand = true;
+						}
+						continue;
+					}
+
 					// Then Handle the operator:
 					// TODO: Handle None.
 					let input_operator = Operator::from_char(token).unwrap();
 					if self.stack.is_empty() {
 						self.stack.push(input_operator);
+						expect_operand = true;
 						continue;
 					}
 					let in_op_info = self.precedence_map.get(&input_operator).unwrap();
-					
+
 					while let Some(stack_operator) = self.stack.last() {
 						let stack_op_info = self.precedence_map.get(stack_operator).unwrap();
 
@@ -141,10 +154,11 @@ impl AUParser {
 							self.output.push(ArithmeticUnit::Op(stack_op));
 							continue;
 						}
-						
+
 						break;
 					}
 					self.stack.push(input_operator);
+					expect_operand = true;
 				},
 				_ => (),
 			}
@@ -175,7 +189,7 @@ impl AUParser {
 		self.result = dec_stack.pop().unwrap();
 	}
 
-	fn calculate_result(&mut self) -> Decimal {
+	pub fn calculate_result(&mut self) -> Decimal {
 		self.shunt_tokens();
 		self.parse_output_stack();
 		self.result
@@ -202,6 +216,7 @@ fn load_operator_precedence() -> HashMap<Operator, OpInfo> {
 }
 
 // TODO: Implement calculate function.
+#[allow(dead_code)]
 pub fn calculate(input: String) -> Decimal {
 	let mut parser = AUParser::init();
 	parser.set_input(input);
@@ -209,14 +224,13 @@ pub fn calculate(input: String) -> Decimal {
 }
 
 #[cfg(test)]
-mod parser_tests {
+mod tests {
 	use rust_decimal_macros::dec;
 	use crate::parser::calculate;
 
 	#[test]
 	fn add_two_digits() {
 		let input = "10+5".to_string();
-
 		let result = calculate(input);
 
 		assert_eq!(result, dec!(15));
@@ -225,7 +239,6 @@ mod parser_tests {
 	#[test]
 	fn add_three_digits() {
 		let input = "10+5+5".to_string();
-
 		let result = calculate(input);
 
 		assert_eq!(result, dec!(20));
@@ -234,7 +247,6 @@ mod parser_tests {
 	#[test]
 	fn multiply_two_digits() {
 		let input = "22*8".to_string();
-
 		let result = calculate(input);
 
 		assert_eq!(result, dec!(176));
@@ -243,9 +255,71 @@ mod parser_tests {
 	#[test]
 	fn multiply_three_digits() {
 		let input = "10*5*5".to_string();
-
 		let result = calculate(input);
 
 		assert_eq!(result, dec!(250));
+	}
+
+	#[test]
+	fn divide_two_digits() {
+		let input = "100/2".to_string();
+		let result = calculate(input);
+
+		assert_eq!(result, dec!(50));
+	}
+
+	#[test]
+	fn divide_three_digits() {
+		let input = "100/2/2".to_string();
+		let result = calculate(input);
+
+		assert_eq!(result, dec!(25));
+	}
+
+	#[test]
+	fn exponentiation_two_digits() {
+		let input = "100^2".to_string();
+		let result = calculate(input);
+
+		assert_eq!(result, dec!(10000));
+	}
+
+	#[test]
+	fn exponentiation_three_digits() {
+		let input = "100^2^2".to_string();
+		let result = calculate(input);
+
+		assert_eq!(result, dec!(100000000));
+	}
+
+	#[test]
+	fn multiple_digits_multiple_operators() {
+		let input = "45*2/3+1".to_string();
+		let result = calculate(input);
+
+		assert_eq!(result, dec!(31));
+	}
+	#[test]
+	fn multiple_digits_multiple_operators_2() {
+		let input = "789*3/5+145-66^4".to_string();
+		let result = calculate(input);
+
+		assert_eq!(result, dec!(-18974117.6));
+	}
+
+	#[test]
+	fn multiple_digits_multiple_operators_3() {
+		let input = "139/3*8-269+66^2+55".to_string();
+		let result = calculate(input);
+
+		assert_eq!(result, dec!(4512.6666666666666666666666667));
+	}
+
+	#[test]
+	fn floating_point_numbers() {
+		let input = "55.2+78.1234-64.431+5.6893".to_string();
+		let result = calculate(input);
+
+		assert_eq!(result, dec!(74.5817));
 	}
 }
