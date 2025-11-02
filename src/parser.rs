@@ -253,7 +253,7 @@ pub fn calculate(input: String) -> ParseResult {
 
 #[cfg(test)]
 mod tests {
-	use crate::parser::{calculate, ParseErr};
+	use crate::parser::{ParseErr, calculate};
 	use rust_decimal_macros::dec;
 
 	#[test]

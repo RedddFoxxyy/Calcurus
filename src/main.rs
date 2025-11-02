@@ -191,7 +191,7 @@ static MIN_WINDOW_SIZE: Size = Size { width: 280.0, height: 400.0 };
 
 fn main() -> iced::Result {
 	let icon = window::icon::from_file_data(WINDOW_ICON_BYTES, None).ok();
-	
+
 	let window_settings = window::Settings {
 		size: MIN_WINDOW_SIZE,
 		min_size: Some(MIN_WINDOW_SIZE),
