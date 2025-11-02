@@ -1,4 +1,4 @@
-//! The Basic Working and logic of operation of this calculator is that, there is an empty buffer where we can push and pop Arithmetic Units ( see types.rs ).
+//! The Basic Working and logic of the operation of this calculator is that there is an empty buffer where we can push and pop Arithmetic Units ( see types.rs ).
 //! When we type any number/operator on the calculator, these values are pushed to this buffer and during this various edge cases are also checked.
 //! Once the user clicks the 'equal to' key, instead of pushing this to buffer, a function is called to operate on this buffer, and this function operates
 //! on each unit one by one.
@@ -15,7 +15,6 @@ use iced::{
 	widget::{button, center, column, row, text},
 	window,
 };
-use iced::advanced::Renderer;
 
 static JETBRAINS_MONO_BYTES: &[u8] = include_bytes!("./resources/fonts/JetBrainsMonoNerdFont-Regular.ttf");
 pub const JETBRAINS_MONO_NERD_FONT: Font = Font::with_name("JetBrainsMono Nerd Font");
@@ -156,14 +155,14 @@ fn handle_delete_keys(state: &mut Calcurus, button_id: &str) {
 
 fn operate_on_buffer(app_state: &mut Calcurus) {
 	app_state.parser.set_input(app_state.display_buffer.clone());
-	
+
 	match app_state.parser.calculate_result() {
 		Ok(result) => {
 			app_state.display_buffer.clear();
 			app_state.display_buffer.push_str(result.to_string().as_str());
 			app_state.parser.reset();
 			app_state.is_output_dec = true;
-		},
+		}
 		Err(error) => {
 			app_state.display_buffer.clear();
 			app_state.display_buffer.push_str(error.as_str());
