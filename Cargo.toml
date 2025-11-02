@@ -2,13 +2,13 @@
 name = "Calcurus"
 authors = ["Suyog Tandel(RedddFoxxyy)"]
 license-file = "LICENSE-CC"
-version = "0.1.4"
+version = "0.3.0"
 edition = "2024"
 
 [dependencies]
 # iced = { version = "0.13.1", features = ["image", "debug", "smol"] }
 iced = { version = "0.13.1", features = ["web-colors", "webgl", "advanced"] }
-rust_decimal = { version = "1.39.0", features = ["std", "maths"]}
+rust_decimal = { version = "1.39.0", features = ["std", "maths"] }
 rust_decimal_macros = "1.39.0"
 
 [profile.release]
@@ -23,3 +23,13 @@ codegen-units = 256
 lto = false        # Disables link-time-optimizations.
 opt-level = 0
 incremental = true # Enables incremental compilation.
+
+[profile.wasm-dev]
+inherits = "dev"
+codegen-units = 1
+opt-level = 0
+panic = "abort"
+strip = true
+
+[package.metadata.trunk]
+tools = { wasm-opt = "skip" }

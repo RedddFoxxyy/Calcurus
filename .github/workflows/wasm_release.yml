@@ -12,7 +12,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       # Step 1: Check out the repository code
@@ -35,7 +35,7 @@ jobs:
 
       # Step 5: Build your project in release mode
       - name: Build with Trunk
-        run: trunk build --release --public-url /Calcurus/
+        run: trunk build --public-url /Calcurus/
 
       # Step 6: Deploy the contents of the dist folder to the gh-pages branch
       - name: Deploy to GitHub Pages
