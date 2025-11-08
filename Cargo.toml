@@ -1,5 +1,5 @@
 [package]
-name = "Calcurus"
+name = "calcurus"
 authors = ["Suyog Tandel(RedddFoxxyy)"]
 license-file = "LICENSE-CC"
 version = "0.3.1"
