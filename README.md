@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/resources/images/Calcurus1_1000.svg" alt="Pomolin app icon" width="200"/>
+  <img src="resources/icons/hicolor/scalable/apps/calcurus.svg" alt="Calcurus app icon" width="200"/>
 </p>
 
 <h1 align="center">Calcurus</h1>
@@ -18,7 +18,7 @@ It can run on any platform/os that is supported by the rust compiler, including 
 
 ## Installation
 
-- AppImage and Standalone Executables are available for download for linux-x86_64 on
+- AppImage and Standalone Executables are available for download for linux-x86_64 and Windows_x86_64 on
   the [releases](https://github.com/RedddFoxxyy/Calcurus/releases) page.
 - For other platforms, you can compile it yourself, following the instructions below.
 
@@ -57,4 +57,3 @@ It can run on any platform/os that is supported by the rust compiler, including 
 
 Calcurus is licensed under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3 and “Commons Clause” License Condition v1.0.
 See the LICENSE-CC files for details.
-
