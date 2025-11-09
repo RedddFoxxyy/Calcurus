@@ -1,0 +1,59 @@
+{
+	"name": "Calcurus devcontainer",
+
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": "true",
+			"username": "root",
+			"userUid": "0",
+			"userGid": "0",
+			"upgradePackages": "true"
+		}
+	},
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"rust-lang.rust-analyzer",       
+				"ms-python.python",
+				"ms-python.debugpy",                
+				"ms-python.vscode-pylance",
+				"tamasfe.even-better-toml",
+				"fill-labs.dependi"
+			],
+			"settings": {
+				"python.defaultInterpreterPath": "/usr/bin/pypy",
+				"rust-analyzer.cargo.runBuildScripts": true
+			}
+		}
+	},
+
+	// Wayland support
+	"containerEnv": {
+		"WAYLAND_DISPLAY": "${localEnv:WAYLAND_DISPLAY}",
+		"XDG_RUNTIME_DIR": "${localEnv:XDG_RUNTIME_DIR}",
+		"XDG_SESSION_TYPE": "${localEnv:XDG_SESSION_TYPE}"
+	},
+
+	"mounts": [
+		{
+			"source": "devcontainer-cargo-cache-${devcontainerId}",
+			"target": "/usr/local/cargo",
+			"type": "volume"
+		},
+		{
+			"source": "devcontainer-target-${devcontainerId}",
+			"target": "/workspace/target",
+			"type": "volume"
+		},
+		"source=${localEnv:XDG_RUNTIME_DIR},target=${localEnv:XDG_RUNTIME_DIR},type=bind,consistency=cached"
+
+	],
+
+	"remoteUser": "root"
+}
+

@@ -21,6 +21,7 @@ It can run on any platform/os that is supported by the rust compiler, including 
 - AppImage and Standalone Executables are available for download for linux-x86_64 and Windows_x86_64 on
   the [releases](https://github.com/RedddFoxxyy/Calcurus/releases) page.
 - For other platforms, you can compile it yourself, following the instructions below.
+- Requires Fedora 42 or Ubuntu 24.04 or latest linux distro.
 
 ## Compilation
 

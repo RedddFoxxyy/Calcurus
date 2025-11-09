@@ -2,7 +2,6 @@
 
 """
 Python 3 script to build an AppImage for the Calcurus application.
-This is a translation of the provided bash script.
 """
 
 import os
@@ -38,6 +37,7 @@ def run_cmd(command_list, env=None):
 
 
 def build_appimage():
+    
     # --- 1. Architecture Check ---
     arch = platform.machine()
     if arch == "x86_64":
@@ -48,7 +48,8 @@ def build_appimage():
         print(f"Unsupported architecture: {arch}", file=sys.stderr)
         sys.exit(1)
 
-    appdir = Path("AppDir")
+    appdir = Path(".tmp/AppDir")
+
 
     # --- 2. Create AppDir Structure ---
     print("Creating AppDir structure...")
@@ -61,6 +62,7 @@ def build_appimage():
 
     for d in dirs_to_create:
         d.mkdir(parents=True, exist_ok=True)
+
 
     # --- 3. Copy Files ---
     print("Copying files...")
@@ -96,23 +98,28 @@ def build_appimage():
         # This can happen if the script is run in a weird state
         pass
 
+
     # --- 4. Set Permissions ---
     files_to_make_executable = [appdir / "AppRun", appdir / "usr/bin/Calcurus"]
 
     for f in files_to_make_executable:
         f.chmod(0o755)  # Equivalent to chmod +x
 
+
     # --- 5. Download appimagetool ---
     tool_filename = f"appimagetool-{tool_arch}.AppImage"
-    tool_path = Path(tool_filename)
+    base_tmp = Path(".tmp")
+    base_tmp.mkdir(parents=True, exist_ok=True)
+    tool_path = base_tmp / tool_filename
     tool_url = f"https://github.com/AppImage/AppImageKit/releases/download/continuous/{tool_filename}"
 
     if not tool_path.is_file():
-        print(f"Downloading {tool_filename}...")
-        run_cmd(["wget", "-q", tool_url])
+        print(f"Downloading {tool_filename} into {base_tmp} …")
+        run_cmd(["wget", "-q", "-O", str(tool_path), tool_url])
         tool_path.chmod(0o755)
     else:
-        print(f"{tool_filename} already exists, skipping download.")
+        print(f"{tool_filename} already exists in {base_tmp}, skipping download.")
+
 
     # --- 6. Build AppImage ---
     print("Building AppImage...")
@@ -121,7 +128,9 @@ def build_appimage():
     build_env = os.environ.copy()
     build_env["ARCH"] = tool_arch
 
-    run_cmd([f"./{tool_filename}", appdir, "Calcurus.AppImage"], env=build_env)
+    output_appimage = base_tmp / f"Calcurus‑{tool_arch}.AppImage"
+    run_cmd([str(tool_path), str(appdir), str(output_appimage)], env=build_env)
+
 
     # --- 7. Cleanup ---
     print(f"Cleaning up {appdir}...")
