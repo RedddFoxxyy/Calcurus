@@ -4,6 +4,12 @@
 
 <h1 align="center">Calcurus</h1>
 
+
+<p align="center">
+  <img src="resources/github/calcurus_gnome.png" width="45%"  alt="Calcurus Screenshot on GNOME"/>
+</p>
+
+
 ### [Calcurus](https://redddfoxxyy.github.io/Calcurus/) is a simple calculator written in Rust using the [iced](https://github.com/iced-rs/iced) framework.
 
 It can run on any platform/os that is supported by the rust compiler, including wasm!
