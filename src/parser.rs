@@ -8,7 +8,6 @@
 //! https://people.willamette.edu/~fruehr/353/files/ShuntingYard.pdf
 
 use rust_decimal::{Decimal, MathematicalOps};
-use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Clone, Hash, Eq)]
 pub enum Operator {
@@ -33,6 +32,22 @@ impl Operator {
 			'√' => Some(Operator::Sqrt),
 			'!' => Some(Operator::Not),
 			_ => None,
+		}
+	}
+
+	fn get_precedance(&self) -> OpInfo {
+		match self {
+			// opt_precedence_map.insert(',', OpInfo::from(0, Associativity::Left)); // comma
+			// opt_precedence_map.insert('=', OpInfo::from(1, Associativity::Right)); // assignment
+			Operator::Add => OpInfo::from(10, Associativity::Left),
+			Operator::Sub => OpInfo::from(10, Associativity::Left),
+			Operator::Mul => OpInfo::from(11, Associativity::Left),
+			Operator::Div => OpInfo::from(11, Associativity::Left),
+			Operator::Exp => OpInfo::from(12, Associativity::Right),
+			Operator::Not => OpInfo::from(13, Associativity::Right),
+			Operator::Sqrt => OpInfo::from(14, Associativity::Left),
+			// opt_precedence_map.insert('(', OpInfo::from(15, Associativity::Left)); // Parentheses
+			// opt_precedence_map.insert(')', OpInfo::from(15, Associativity::Left)); // Parentheses
 		}
 	}
 
@@ -73,25 +88,6 @@ impl OpInfo {
 		Self { precedence, associativity }
 	}
 }
-
-static OPERATOR_PRECEDENCE: std::sync::LazyLock<HashMap<Operator, OpInfo>> = std::sync::LazyLock::new(|| {
-	let mut opt_precedence_map: HashMap<Operator, OpInfo> = HashMap::new();
-	// opt_precedence_map.insert(',', OpInfo::from(0, Associativity::Left)); // comma
-	// opt_precedence_map.insert('=', OpInfo::from(1, Associativity::Right)); // assignment
-	opt_precedence_map.insert(Operator::Add, OpInfo::from(10, Associativity::Left)); // Addition
-	opt_precedence_map.insert(Operator::Sub, OpInfo::from(10, Associativity::Left)); // Subtraction
-	opt_precedence_map.insert(Operator::Mul, OpInfo::from(11, Associativity::Left)); // Multiplication
-	opt_precedence_map.insert(Operator::Mul, OpInfo::from(11, Associativity::Left)); // Multiplication
-	opt_precedence_map.insert(Operator::Div, OpInfo::from(11, Associativity::Left)); // Division
-	opt_precedence_map.insert(Operator::Div, OpInfo::from(11, Associativity::Left)); // Division
-	opt_precedence_map.insert(Operator::Exp, OpInfo::from(12, Associativity::Right)); // Exponentiation
-	opt_precedence_map.insert(Operator::Not, OpInfo::from(13, Associativity::Right)); // Logical Not
-	opt_precedence_map.insert(Operator::Sqrt, OpInfo::from(14, Associativity::Left)); // Sqrt
-	// opt_precedence_map.insert('(', OpInfo::from(15, Associativity::Left)); // Parentheses
-	// opt_precedence_map.insert(')', OpInfo::from(15, Associativity::Left)); // Parentheses
-
-	opt_precedence_map
-});
 
 /// A Token type is an enum that can have two types, either a Decimal or an Operator.
 /// Where an Operator is any arithmetic operator such as '+' and, a Number is of type 'Decimal' from
@@ -188,10 +184,10 @@ impl ShuntParser {
 						expect_operand = true;
 						continue;
 					}
-					let in_op_info = OPERATOR_PRECEDENCE.get(&input_operator).ok_or(ParseErr::SyntaxErr)?;
+					let in_op_info = input_operator.get_precedance();
 
 					while let Some(stack_operator) = self.stack.last() {
-						let stack_op_info = OPERATOR_PRECEDENCE.get(stack_operator).ok_or(ParseErr::SyntaxErr)?;
+						let stack_op_info = stack_operator.get_precedance();
 
 						if (in_op_info.precedence < stack_op_info.precedence)
 							|| (in_op_info.precedence == stack_op_info.precedence && in_op_info.associativity == Associativity::Left)

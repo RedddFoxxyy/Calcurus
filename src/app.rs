@@ -108,7 +108,12 @@ pub(crate) fn create_default_rows(calcurus: &'_ Calcurus) -> Vec<Element<'_, Mes
 pub(crate) fn handle_key_click(state: &mut Calcurus, button_id: String) {
 	handle_delete_keys(state, &button_id);
 
-	// TODO: Replace unwrap with unwrap_or_else.
+	// Handle Error on last operation.
+	if !state.is_output_dec {
+		state.display_buffer.clear();
+		state.is_output_dec = true;
+	}
+
 	let button_id_char = button_id.chars().next().unwrap();
 	match button_id_char {
 		// TODO: Add handling case for '√'
@@ -127,6 +132,7 @@ fn handle_delete_keys(state: &mut Calcurus, button_id: &str) {
 		state.display_buffer.clear();
 		state.is_output_dec = true;
 	} else if button_id == "Bck" {
+		// Handle Error on last operation.
 		if state.is_output_dec {
 			state.display_buffer.pop();
 		} else {
