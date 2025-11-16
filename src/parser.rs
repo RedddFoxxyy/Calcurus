@@ -72,9 +72,10 @@ impl Operator {
 	}
 }
 
-#[derive(Debug, PartialEq, Hash, Clone, Eq)]
+#[derive(Default, Debug, PartialEq, Hash, Clone, Eq)]
 enum Associativity {
 	Right,
+	#[default]
 	Left,
 }
 
