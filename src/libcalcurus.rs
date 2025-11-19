@@ -1,11 +1,15 @@
-//! Implementation of a simple token parser that converts input string into tokens of chars and then performs calculation on them to give the result of type
-//! Decimal, it uses Shunting Yard Algorithm to parse the tokens and operate on them to give an accurate result adhering to Operator Precedence.
+//! # libcalcurus
 //!
-//! Sources:
-//! https://en.wikipedia.org/wiki/Shunting_yard_algorithm
-//! https://brilliant.org/wiki/shunting-yard-algorithm/
-//! https://mathcenter.oxford.emory.edu/site/cs171/shuntingYardAlgorithm/
-//! https://people.willamette.edu/~fruehr/353/files/ShuntingYard.pdf
+//! Implementation of a simple token parser that converts input string into tokens of chars and then performs various operations on them to give the result of type Decimal.
+//!
+//! It uses Shunting Yard Algorithm to parse the tokens and operate on them to give an accurate result adhering to Operator Precedence.
+//!
+//! ## Sources:
+//!
+//! - https://en.wikipedia.org/wiki/Shunting_yard_algorithm
+//! - https://brilliant.org/wiki/shunting-yard-algorithm/
+//! - https://mathcenter.oxford.emory.edu/site/cs171/shuntingYardAlgorithm/
+//! - https://people.willamette.edu/~fruehr/353/files/ShuntingYard.pdf
 
 use rust_decimal::{Decimal, MathematicalOps};
 
@@ -248,7 +252,7 @@ pub fn calculate(input: String) -> ParseResult {
 
 #[cfg(test)]
 mod tests {
-	use crate::parser::{ParseErr, calculate};
+	use crate::libcalcurus::{ParseErr, calculate};
 	use rust_decimal_macros::dec;
 
 	#[test]
