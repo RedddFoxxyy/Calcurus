@@ -43,7 +43,7 @@ fn main() -> cosmic::iced::Result {
 	// 	..window::Settings::default()
 	// };
 
-	let settings = cosmic::app::Settings::default().size_limits(cosmic::iced::Limits::NONE.min_width(180.0).min_height(400.0));
+	let settings = cosmic::app::Settings::default().size_limits(cosmic::iced::Limits::NONE.min_width(400.0).min_height(600.0));
 
 	// iced::application("Calcurus - Iced", app::Calcurus::update, app::Calcurus::view)
 	// 	.font(JETBRAINS_MONO_BYTES)

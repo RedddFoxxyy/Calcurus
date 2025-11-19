@@ -1,10 +1,12 @@
 use cosmic::Element;
+use cosmic::iced::Padding;
 use cosmic::iced::widget::{column, row};
 use cosmic::iced::{
 	Color, Length,
 	alignment::{Horizontal, Vertical},
 };
 use cosmic::iced_widget::{button, center, text};
+use cosmic::widget;
 
 use crate::libcalcurus;
 
@@ -20,7 +22,7 @@ static CL_BUTTONS_LAYOUT: [&str; 20] = [
 /// Custom messages for Calcurus.
 #[derive(Debug, Clone)]
 pub enum ClMessage {
-	ClClick(String),
+	ClClick(&'static str),
 }
 
 pub struct ClApplication {
@@ -76,27 +78,43 @@ impl cosmic::Application for ClApplication {
 	}
 
 	fn view(&self) -> Element<'_, Self::Message> {
-		let display = text(&self.display_buffer)
-			.size(30)
-			.width(Length::Fill)
-			.height(Length::FillPortion(1))
-			.align_x(Horizontal::Right);
-
-		let button_rows = self.create_default_rows();
-
-		let keys_column = column(button_rows).spacing(3).height(Length::FillPortion(4));
-
-		let content = column![display, keys_column]
+		widget::column::column()
+			.push(widget::text(&self.display_buffer).size(40).width(Length::Fill).align_x(Horizontal::Right))
+			.push(
+				widget::container(column(self.create_default_rows()).spacing(10))
+					.width(Length::Fill)
+					.height(Length::Fill)
+					.align_x(Horizontal::Center)
+					.align_y(Vertical::Bottom)
+					.padding(10),
+			)
 			.padding(5)
 			.spacing(5)
 			.width(Length::Fill)
-			.align_x(Horizontal::Center);
+			.align_x(Horizontal::Center)
+			.into()
 
-		let mut main_content: Element<ClMessage> = center(content).into();
-		if self.debug_mode {
-			main_content = main_content.explain(Color::WHITE);
-		}
-		main_content
+		// let display = text(&self.display_buffer)
+		// 	.size(30)
+		// 	.width(Length::Fill)
+		// 	.height(Length::FillPortion(1))
+		// 	.align_x(Horizontal::Right);
+
+		// let button_rows = self.create_default_rows();
+
+		// let keys_column = column(button_rows).spacing(3).height(Length::FillPortion(4));
+
+		// let content = column![display, keys_column]
+		// 	.padding(5)
+		// 	.spacing(5)
+		// 	.width(Length::Fill)
+		// 	.align_x(Horizontal::Center);
+
+		// let mut main_content: Element<ClMessage> = center(content).into();
+		// if self.debug_mode {
+		// 	main_content = main_content.explain(Color::WHITE);
+		// }
+		// main_content
 	}
 }
 
@@ -104,7 +122,7 @@ impl ClApplication
 where
 	Self: cosmic::Application,
 {
-	pub(crate) fn handle_key_click(&mut self, button_id: String) {
+	pub(crate) fn handle_key_click(&mut self, button_id: &'static str) {
 		self.handle_delete_keys(&button_id);
 
 		// Handle Error on last operation.
@@ -165,17 +183,22 @@ where
 		let mut current_row: Vec<Element<ClMessage>> = Vec::new();
 
 		for (index, key) in CL_BUTTONS_LAYOUT.iter().enumerate() {
-			// let key_label = text(*key)
-			// 	.width(Length::Fill)
-			// 	.height(Length::Fill)
-			// 	.align_x(alignment::Horizontal::Center)
-			// 	.align_y(alignment::Vertical::Center)
-			// 	// .color(iced::Color::new(0.9490196, 0.8980392, 0.7372549, 1.0))
-			// 	.size(25);
-
-			let button = cosmic::widget::button::standard(*key).on_press(ClMessage::ClClick(key.to_string()));
-			// .width(Length::Fill)
-			// .height(Length::Fill);
+			let button = cosmic::widget::button::standard(*key)
+				.on_press(ClMessage::ClClick(*key))
+				.class(if *key == "=" {
+					cosmic::theme::Button::Suggested
+				} else {
+					cosmic::theme::Button::Standard
+				})
+				.font_size(30)
+				.padding(Padding {
+					top: 0.0,
+					bottom: 0.0,
+					left: 30.0,
+					right: 0.0,
+				})
+				.width(80)
+				.height(80);
 
 			let mut button_element: Element<ClMessage> = button.into();
 			if self.debug_mode {
@@ -187,16 +210,10 @@ where
 			// Create a new row after every 4 buttons
 			if current_row.len() == 4 || index == CL_BUTTONS_LAYOUT.len() - 1 {
 				button_rows.push(
-					cosmic::widget::container(
-						cosmic::widget::flex_row::flex_row(std::mem::take(&mut current_row))
-							.column_spacing(4)
-							.row_spacing(4),
-					)
-					.width(Length::Fill)
-					.height(Length::Fill)
-					.align_x(Horizontal::Center)
-					.align_y(Vertical::Center)
-					.into(), // row().spacing(3).into()
+					cosmic::widget::flex_row::flex_row(std::mem::take(&mut current_row))
+						.column_spacing(10)
+						.row_spacing(5)
+						.into(),
 				);
 			}
 		}
