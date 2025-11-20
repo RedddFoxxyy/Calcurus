@@ -1,11 +1,9 @@
 use cosmic::Element;
 use cosmic::iced::Padding;
-use cosmic::iced::widget::{column, row};
 use cosmic::iced::{
-	Color, Length,
+	Length,
 	alignment::{Horizontal, Vertical},
 };
-use cosmic::iced_widget::{button, center, text};
 use cosmic::widget;
 
 use crate::libcalcurus;
@@ -27,6 +25,7 @@ pub enum ClMessage {
 
 pub struct ClApplication {
 	core: cosmic::app::Core,
+	#[allow(unused)]
 	debug_mode: bool,
 	display_buffer: String,
 	// Used to track if the output of last operation was an error or not.
@@ -79,42 +78,31 @@ impl cosmic::Application for ClApplication {
 
 	fn view(&self) -> Element<'_, Self::Message> {
 		widget::column::column()
-			.push(widget::text(&self.display_buffer).size(40).width(Length::Fill).align_x(Horizontal::Right))
 			.push(
-				widget::container(column(self.create_default_rows()).spacing(10))
+				widget::container(widget::text(&self.display_buffer).size(40).width(Length::Fill).align_x(Horizontal::Right))
+					.width(Length::Fill)
+					.align_x(Horizontal::Center)
+					.padding(10),
+			)
+			.push(widget::divider::horizontal::default())
+			.push(
+				widget::container(init_keys_grid())
 					.width(Length::Fill)
 					.height(Length::Fill)
 					.align_x(Horizontal::Center)
 					.align_y(Vertical::Bottom)
-					.padding(10),
+					.padding(Padding {
+						top: 0.0,
+						bottom: 20.0,
+						left: 2.5,
+						right: 2.5,
+					}),
 			)
 			.padding(5)
 			.spacing(5)
 			.width(Length::Fill)
 			.align_x(Horizontal::Center)
 			.into()
-
-		// let display = text(&self.display_buffer)
-		// 	.size(30)
-		// 	.width(Length::Fill)
-		// 	.height(Length::FillPortion(1))
-		// 	.align_x(Horizontal::Right);
-
-		// let button_rows = self.create_default_rows();
-
-		// let keys_column = column(button_rows).spacing(3).height(Length::FillPortion(4));
-
-		// let content = column![display, keys_column]
-		// 	.padding(5)
-		// 	.spacing(5)
-		// 	.width(Length::Fill)
-		// 	.align_x(Horizontal::Center);
-
-		// let mut main_content: Element<ClMessage> = center(content).into();
-		// if self.debug_mode {
-		// 	main_content = main_content.explain(Color::WHITE);
-		// }
-		// main_content
 	}
 }
 
@@ -177,46 +165,30 @@ where
 			}
 		}
 	}
+}
 
-	fn create_default_rows(&self) -> Vec<Element<'_, ClMessage>> {
-		let mut button_rows: Vec<Element<ClMessage>> = Vec::new();
-		let mut current_row: Vec<Element<ClMessage>> = Vec::new();
+fn init_keys_grid() -> Element<'static, ClMessage> {
+	let grid = widget::grid();
 
-		for (index, key) in CL_BUTTONS_LAYOUT.iter().enumerate() {
-			let button = cosmic::widget::button::standard(*key)
-				.on_press(ClMessage::ClClick(*key))
-				.class(if *key == "=" {
-					cosmic::theme::Button::Suggested
-				} else {
-					cosmic::theme::Button::Standard
-				})
-				.font_size(30)
-				.padding(Padding {
-					top: 0.0,
-					bottom: 0.0,
-					left: 30.0,
-					right: 0.0,
-				})
-				.width(80)
-				.height(80);
+	let grid = CL_BUTTONS_LAYOUT.chunks(4).enumerate().fold(grid, |grid, (i, row_keys)| {
+		let grid = if i > 0 { grid.insert_row() } else { grid };
 
-			let mut button_element: Element<ClMessage> = button.into();
-			if self.debug_mode {
-				button_element = button_element.explain(Color::WHITE);
-			}
+		row_keys.iter().fold(grid, |grid, key| grid.push(create_button(key)))
+	});
 
-			current_row.push(button_element);
+	grid.column_spacing(10).row_spacing(10).into()
+}
 
-			// Create a new row after every 4 buttons
-			if current_row.len() == 4 || index == CL_BUTTONS_LAYOUT.len() - 1 {
-				button_rows.push(
-					cosmic::widget::flex_row::flex_row(std::mem::take(&mut current_row))
-						.column_spacing(10)
-						.row_spacing(5)
-						.into(),
-				);
-			}
-		}
-		button_rows
-	}
+fn create_button(key: &'static str) -> Element<'static, ClMessage> {
+	cosmic::widget::button::standard(key)
+		.on_press(ClMessage::ClClick(key))
+		.class(if key == "=" {
+			cosmic::theme::Button::Suggested
+		} else {
+			cosmic::theme::Button::Standard
+		})
+		.font_size(24)
+		.width(60)
+		.height(60)
+		.into()
 }
