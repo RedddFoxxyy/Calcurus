@@ -1,3 +1,8 @@
+> [!warning]
+> This repository has been archived and moved to codeberg: https://codeberg.org/RedddFoxxyy/calcurus
+> 
+> It is not mirored and will not be receiving any updates.
+
 <p align="center">
   <img src="resources/icons/hicolor/scalable/apps/calcurus.svg" alt="Calcurus app icon" width="200"/>
 </p>
